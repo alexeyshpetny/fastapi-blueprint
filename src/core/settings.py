@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     CORS_ALLOW_ORIGINS: list[str] = Field(default=["*"])
     CORS_ALLOW_METHODS: list[str] = Field(default=["*"])
     CORS_ALLOW_HEADERS: list[str] = Field(default=["*"])
-    CORS_ALLOW_CREDENTIALS: bool = Field(default=True)
+    CORS_ALLOW_CREDENTIALS: bool = Field(default=False)
     CORS_MAX_AGE: int = Field(default=600, ge=0)
 
     TESTING: bool = Field(default=False)
