@@ -7,16 +7,16 @@ help:
 
 .PHONY: lint
 lint:
-	ruff check .
-	isort --check .
-	mypy .
+	uv run ruff check .
+	uv run isort --check .
+	uv run mypy .
 
 .PHONY: format
 format:
-	ruff format --check .
-	isort .
+	uv run ruff format .
+	uv run isort .
 
 .PHONY: fix
 fix:
-	ruff check --fix .
-	isort .
+	uv run ruff check --fix .
+	uv run isort .
