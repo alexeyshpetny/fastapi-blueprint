@@ -1,18 +1,113 @@
 [project]
 name = "shpetny-fastapi-blueprint"
 version = "0.1.0"
-description = "Add your description here"
+description = "Production-ready FastAPI blueprint"
 readme = "README.md"
 requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [
+    { name = "Alexey Shpetny", email = "rozanov7475@yandex.by" },
+]
+keywords = ["fastapi", "api", "web", "async"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Framework :: FastAPI",
+]
 dependencies = [
-    "fastapi>=0.124.4",
-    "pydantic-settings>=2.12.0",
-    "uvicorn[standard]>=0.38.0",
+    "fastapi>=0.124.4,<1.0.0",
+    "pydantic-settings>=2.12.0,<3.0.0",
+    "uvicorn[standard]>=0.38.0,<1.0.0",
 ]
 
 [dependency-groups]
 dev = [
-    "isort>=7.0.0",
-    "mypy>=1.19.0",
-    "ruff>=0.14.9",
+    "isort>=7.0.0,<8.0.0",
+    "mypy>=1.19.0,<2.0.0",
+    "pytest>=8.0.0,<9.0.0",
+    "pytest-asyncio>=0.24.0,<1.0.0",
+    "pytest-cov>=6.0.0,<7.0.0",
+    "httpx>=0.27.0,<1.0.0",
+    "ruff>=0.14.9,<1.0.0",
 ]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+addopts = [
+    "--strict-markers",
+    "--verbose",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-fail-under=80",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests",
+    "slow: Slow running tests",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",           # Lines marked with # pragma: no cover
+    "if __name__ == .__main__.:",  # Main block
+    "if TYPE_CHECKING:",          # Type checking imports
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes (undefined names, unused imports)
+    "I",   # isort (import sorting)
+    "W",   # pycodestyle warnings
+    "UP",  # pyupgrade (modernize Python syntax)
+    "B",   # flake8-bugbear (common bugs and design problems)
+    "C4",  # flake8-comprehensions (better comprehensions)
+    "PT",  # flake8-pytest-style (pytest best practices)
+    "RUF", # ruff-specific rules
+]
+ignore = [
+    "E501",  # Line too long (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "F401",  # Unused imports (common for re-exports)
+]
+"tests/**/*.py" = [
+    "ARG",  # Unused function arguments (fixtures often unused)
+    "S101", # Use of assert (assert is standard in tests)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.13"
+# Allow untyped code but still provide useful type checking
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+check_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+strict_optional = true
+show_error_codes = true
