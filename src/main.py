@@ -11,6 +11,7 @@ app = FastAPI(
     openapi_url=settings.DOC_OPENAPI_URL,
     docs_url=settings.DOC_SWAGGER_URL,
     redoc_url=settings.DOC_REDOC_URL,
+    debug=settings.DEBUG,
 )
 app.openapi_version = settings.DOC_OPENAPI_VERSION
 app.add_middleware(
