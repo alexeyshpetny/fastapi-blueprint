@@ -7,6 +7,10 @@ help:
 	@echo "  make fix     - Auto-fix linting issues"
 	@echo "  make test    - Run tests with coverage"
 	@echo "  make clean   - Remove cache and build artifacts"
+	@echo "  make start   - Build and start Docker containers"
+	@echo "  make build   - Build Docker images"
+	@echo "  make up      - Start Docker containers"
+	@echo "  make down    - Stop Docker containers"
 
 .PHONY: install
 install:
@@ -42,3 +46,19 @@ clean:
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
 	find . -type f -name ".coverage" -delete 2>/dev/null || true
 	rm -rf htmlcov/ .coverage coverage.xml dist/ build/ 2>/dev/null || true
+
+.PHONY: start
+start: build up
+
+.PHONY: build
+build:
+	docker compose build
+
+.PHONY: up
+up:
+	docker compose up -d
+	docker compose ps
+
+.PHONY: down
+down:
+	docker compose down
