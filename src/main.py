@@ -9,10 +9,10 @@ app = FastAPI(
     version=settings.DOC_VERSION,
     description=settings.DOC_DESCRIPTION,
     openapi_url=settings.DOC_OPENAPI_URL,
-    openapi_version=settings.DOC_OPENAPI_VERSION,
     docs_url=settings.DOC_SWAGGER_URL,
     redoc_url=settings.DOC_REDOC_URL,
 )
+app.openapi_version = settings.DOC_OPENAPI_VERSION
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ALLOW_ORIGINS,

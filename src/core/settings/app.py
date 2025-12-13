@@ -1,8 +1,8 @@
 from pydantic import Field
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 
-class Settings(BaseSettings):
+class AppSettings(BaseSettings):
     DOC_TITLE: str = Field(default="FastAPI Template")
     DOC_VERSION: str = Field(default="1.0.0")
     DOC_DESCRIPTION: str = Field(default="API documentation for FastAPI template")
@@ -17,17 +17,6 @@ class Settings(BaseSettings):
     CORS_ALLOW_CREDENTIALS: bool = Field(default=False)
     CORS_MAX_AGE: int = Field(default=600, ge=0)
 
-    TESTING: bool = Field(default=False)
-
     API_V1_PREFIX: str = Field(default="/api/v1")
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=True,
-        extra="ignore",
-        env_prefix="APP_",
-    )
-
-
-settings = Settings()
+    TESTING: bool = Field(default=False)
