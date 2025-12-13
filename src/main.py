@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.router import router
 from src.core.settings import settings
 
 app = FastAPI(
@@ -20,3 +21,4 @@ app.add_middleware(
     allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
     max_age=settings.CORS_MAX_AGE,
 )
+app.include_router(router)
