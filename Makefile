@@ -2,8 +2,8 @@
 help:
 	@echo "Available targets:"
 	@echo "  make install - Install dependencies (with dev group)"
-	@echo "  make lint    - Check code without making changes (ruff, isort, mypy)"
-	@echo "  make format  - Format code (ruff format, isort)"
+	@echo "  make lint    - Check code without making changes (ruff, mypy)"
+	@echo "  make format  - Format code (ruff format and fix)"
 	@echo "  make fix     - Auto-fix linting issues"
 	@echo "  make test    - Run tests with coverage"
 	@echo "  make clean   - Remove cache and build artifacts"
@@ -19,18 +19,16 @@ install:
 .PHONY: lint
 lint:
 	uv run ruff check .
-	uv run isort --check .
 	uv run mypy .
 
 .PHONY: format
 format:
 	uv run ruff format .
-	uv run isort .
+	uv run ruff check --fix .
 
 .PHONY: fix
 fix:
 	uv run ruff check --fix .
-	uv run isort .
 
 .PHONY: test
 test:
