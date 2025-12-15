@@ -8,7 +8,10 @@ help:
 	@echo "  make lint    - Check code without making changes (ruff, mypy)"
 	@echo "  make format  - Format code (ruff format and fix)"
 	@echo "  make fix     - Auto-fix linting issues"
-	@echo "  make test    - Run tests with coverage"
+	@echo "  make test    - Run all tests with coverage"
+	@echo "  make test-unit - Run unit tests only"
+	@echo "  make test-integration - Run integration tests only"
+	@echo "  make test-fast - Run tests without coverage (faster)"
 	@echo "  make clean   - Remove cache and build artifacts"
 	@echo "  make start   - Build and start Docker containers"
 	@echo "  make build   - Build Docker images"
@@ -38,6 +41,18 @@ fix:
 .PHONY: test
 test:
 	uv run pytest
+
+.PHONY: test-unit
+test-unit:
+	uv run pytest -m unit
+
+.PHONY: test-integration
+test-integration:
+	uv run pytest -m integration
+
+.PHONY: test-fast
+test-fast:
+	uv run pytest -x --ff
 
 .PHONY: clean
 clean:
