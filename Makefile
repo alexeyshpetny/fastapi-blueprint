@@ -1,3 +1,6 @@
+SERVICE_NAME = shpetny-fastapi-blueprint-api
+ALEMBIC_CONFIG = src/alembic.ini
+
 .PHONY: help
 help:
 	@echo "Available targets:"
@@ -11,6 +14,8 @@ help:
 	@echo "  make build   - Build Docker images"
 	@echo "  make up      - Start Docker containers"
 	@echo "  make down    - Stop Docker containers"
+	@echo "  make migrate - Run database migrations"
+	@echo "  make create-migrations - Create new migration files"
 
 .PHONY: install
 install:
@@ -60,3 +65,17 @@ up:
 .PHONY: down
 down:
 	docker compose down
+
+.PHONY: connect
+connect:
+	docker exec -it $(SERVICE_NAME) /bin/bash
+
+
+.PHONY: migrate
+migrate:
+	docker exec $(SERVICE_NAME) bash -c 'cd src && alembic upgrade head'
+
+.PHONY: create-migrations
+create-migrations:
+	docker exec --user root $(SERVICE_NAME) alembic --config $(ALEMBIC_CONFIG) revision --autogenerate --message auto
+	@docker exec --user root $(SERVICE_NAME) chown -R $$(id -u):$$(id -g) /app/src/migrations/versions/

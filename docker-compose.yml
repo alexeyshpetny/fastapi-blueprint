@@ -3,6 +3,7 @@ name: shpetny-fastapi-blueprint
 services:
   postgres:
     image: postgres:16-alpine
+    container_name: shpetny-fastapi-blueprint-postgres
     restart: unless-stopped
     env_file:
       - .env
@@ -18,6 +19,7 @@ services:
 
   api:
     build: .
+    container_name: shpetny-fastapi-blueprint-api
     restart: unless-stopped
     env_file:
       - .env
