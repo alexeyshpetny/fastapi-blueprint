@@ -75,6 +75,7 @@ select = [
 ]
 ignore = [
     "E501",  # Line too long (handled by formatter)
+    "B008",  # Function calls in argument defaults (required for FastAPI Depends())
 ]
 
 [tool.ruff.lint.per-file-ignores]
