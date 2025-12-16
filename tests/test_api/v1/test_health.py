@@ -1,13 +1,15 @@
 from fastapi import status
 from httpx import AsyncClient
 
+from src.core.settings import settings
+
 
 async def test_liveness_probe(client: AsyncClient) -> None:
     response = await client.get("/api/v1/health/live")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["status"] == "alive"
-    assert data["service"] == "shpetny-fastapi-blueprint"
+    assert data["service"] == settings.SERVICE_NAME
     assert "version" in data
 
 
@@ -16,7 +18,7 @@ async def test_readiness_probe_success(client: AsyncClient) -> None:
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["status"] == "ready"
-    assert data["service"] == "shpetny-fastapi-blueprint"
+    assert data["service"] == settings.SERVICE_NAMEs
     assert "version" in data
     assert "checks" in data
     assert data["checks"]["database"] == "ok"
