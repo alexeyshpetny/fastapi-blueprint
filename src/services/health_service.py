@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class HealthService:
     def __init__(self, engine: AsyncEngine) -> None:
         self.engine = engine
-        self.service_name = "shpetny-fastapi-blueprint"
+        self.service_name = settings.SERVICE_NAME
         self.version = settings.DOC_VERSION
 
     async def check_liveness(self) -> dict[str, str]:
