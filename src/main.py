@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.router import router
+from src.core.exceptions import add_exception_handlers
 from src.core.logger import setup_logging
 from src.core.middleware import LoggingMiddleware
 from src.core.settings import settings
@@ -49,5 +50,7 @@ app.add_middleware(
     allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
     max_age=settings.CORS_MAX_AGE,
 )
+
+add_exception_handlers(app)
 
 app.include_router(router)
