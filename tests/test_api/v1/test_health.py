@@ -18,7 +18,7 @@ async def test_readiness_probe_success(client: AsyncClient) -> None:
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["status"] == "ready"
-    assert data["service"] == settings.SERVICE_NAMEs
+    assert data["service"] == settings.SERVICE_NAME
     assert "version" in data
     assert "checks" in data
     assert data["checks"]["database"] == "ok"
