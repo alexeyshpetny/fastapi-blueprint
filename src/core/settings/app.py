@@ -83,3 +83,48 @@ class AppSettings(BaseSettings):
         ge=0,
         description="Maximum age (in seconds) for CORS preflight requests",
     )
+
+    SECURITY_HEADERS_ENABLED: bool = Field(
+        default=True,
+        description="Enable security headers middleware",
+    )
+    SECURITY_X_CONTENT_TYPE_OPTIONS: str = Field(
+        default="nosniff",
+        description="X-Content-Type-Options header value (prevents MIME type sniffing)",
+    )
+    SECURITY_X_FRAME_OPTIONS: str = Field(
+        default="DENY",
+        description="X-Frame-Options header value (prevents clickjacking). Options: DENY, SAMEORIGIN, ALLOW-FROM",
+    )
+    SECURITY_X_XSS_PROTECTION: str = Field(
+        default="1; mode=block",
+        description="X-XSS-Protection header value (enables XSS filter in older browsers)",
+    )
+    SECURITY_STRICT_TRANSPORT_SECURITY: str | None = Field(
+        default=None,
+        description=(
+            "Strict-Transport-Security header value (HSTS). "
+            "Example: 'max-age=31536000; includeSubDomains'. "
+            "Only set this if your application is served over HTTPS."
+        ),
+    )
+    SECURITY_CONTENT_SECURITY_POLICY: str | None = Field(
+        default=None,
+        description=(
+            "Content-Security-Policy header value. "
+            "Example: \"default-src 'self'; script-src 'self' 'unsafe-inline'\". "
+            "If None, header is not set (allows flexibility for API-only services)."
+        ),
+    )
+    SECURITY_REFERRER_POLICY: str = Field(
+        default="strict-origin-when-cross-origin",
+        description=("Referrer-Policy header value. Controls how much referrer information is sent with requests."),
+    )
+    SECURITY_PERMISSIONS_POLICY: str | None = Field(
+        default=None,
+        description=(
+            "Permissions-Policy header value. "
+            "Controls browser features and APIs. "
+            "Example: 'geolocation=(), microphone=(), camera=()'"
+        ),
+    )
