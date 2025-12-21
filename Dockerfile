@@ -27,8 +27,8 @@ WORKDIR /app
 
 COPY --from=builder /opt/app /opt/app
 
-COPY scripts/entrypoint.sh /app/entrypoint.sh
 COPY src src
+COPY scripts/entrypoint.sh entrypoint.sh
 
 RUN chmod +x /app/entrypoint.sh \
     && groupadd -r appuser \
