@@ -47,7 +47,7 @@ app.add_middleware(
 )
 app.add_middleware(
     CacheMiddleware,
-    request_cache_adapter=get_request_cache_adapter(
+    request_adapter=get_request_cache_adapter(
         enabled=settings.CACHE_MIDDLEWARE_ENABLED,
         cache_enabled=settings.CACHE_ENABLED,
         ttl=settings.CACHE_MIDDLEWARE_TTL,

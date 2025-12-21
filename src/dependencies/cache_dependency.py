@@ -1,12 +1,7 @@
-from src.adapters.cache_adapter import RedisCacheAdapter
-from src.adapters.request_cache_adapter import RedisRequestCacheAdapter
+from src.adapters.redis_adapter import RedisAdapter
+from src.adapters.request_adapter import RequestCacheAdapter
 from src.cache.redis import cache_client
-
-
-def get_cache_adapter() -> RedisCacheAdapter | None:
-    if cache_client is None:
-        return None
-    return RedisCacheAdapter(cache_client)
+from src.core.settings import settings
 
 
 def get_request_cache_adapter(
@@ -15,12 +10,12 @@ def get_request_cache_adapter(
     ttl: int,
     exclude_paths: list[str],
     key_prefix: str,
-) -> RedisRequestCacheAdapter | None:
-    cache_adapter = get_cache_adapter()
-    if cache_adapter is None:
+) -> RequestCacheAdapter | None:
+    if not settings.CACHE_ENABLED:
         return None
-    return RedisRequestCacheAdapter(
-        cache_adapter=cache_adapter,
+    redis_adapter = RedisAdapter(cache_client)
+    return RequestCacheAdapter(
+        redis_adapter=redis_adapter,
         enabled=enabled,
         cache_enabled=cache_enabled,
         ttl=ttl,
