@@ -12,27 +12,27 @@ logger = logging.getLogger(__name__)
 
 @router.get(
     "/health/live",
-    summary="Liveness probe",
+    summary="Liveness check",
     description=(
-        "Kubernetes liveness probe endpoint. Returns 200 if the application process is running. "
+        "Liveness check endpoint. Returns 200 if the application process is running. "
         "This endpoint does not check external dependencies."
     ),
     response_model=LivenessResponse,
     status_code=status.HTTP_200_OK,
 )
-async def liveness_probe(
+async def check_liveness(
     health_service: HealthService = Depends(get_health_service),
 ) -> LivenessResponse:
-    logger.debug("Liveness probe requested")
+    logger.debug("Liveness check requested")
     result = await health_service.check_liveness()
     return LivenessResponse(**result)
 
 
 @router.get(
     "/health/ready",
-    summary="Readiness probe",
+    summary="Readiness check",
     description=(
-        "Kubernetes readiness probe endpoint. Returns 200 if the service is ready to accept traffic "
+        "Readiness check endpoint. Returns 200 if the service is ready to accept traffic. "
         "Returns 503 if the service is not ready."
     ),
     response_model=ReadinessResponse,
@@ -54,10 +54,10 @@ async def liveness_probe(
         },
     },
 )
-async def readiness_probe(
+async def check_readiness(
     health_service: HealthService = Depends(get_health_service),
 ) -> ReadinessResponse:
-    logger.debug("Readiness probe requested")
+    logger.debug("Readiness check requested")
     result = await health_service.check_readiness()
     response = ReadinessResponse(**result)
 

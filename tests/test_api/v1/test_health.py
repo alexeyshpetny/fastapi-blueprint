@@ -4,7 +4,7 @@ from httpx import AsyncClient
 from src.core.settings import settings
 
 
-async def test_liveness_probe(client: AsyncClient) -> None:
+async def test_check_liveness(client: AsyncClient) -> None:
     response = await client.get("/api/v1/health/live")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
@@ -13,7 +13,7 @@ async def test_liveness_probe(client: AsyncClient) -> None:
     assert "version" in data
 
 
-async def test_readiness_probe_success(client: AsyncClient) -> None:
+async def test_check_readiness_success(client: AsyncClient) -> None:
     response = await client.get("/api/v1/health/ready")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
