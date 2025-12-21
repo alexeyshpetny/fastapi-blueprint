@@ -2,7 +2,7 @@ import logging
 import sys
 from contextvars import ContextVar
 
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger.json import JsonFormatter
 
 from src.core.settings import settings
 
@@ -25,7 +25,7 @@ def setup_logging() -> None:
     handler.setLevel(settings.log_level_int)
 
     if settings.LOG_FORMAT.lower() == "json":
-        formatter: logging.Formatter = jsonlogger.JsonFormatter(
+        formatter: logging.Formatter = JsonFormatter(
             fmt="%(asctime)s %(name)s %(levelname)s %(message)s %(pathname)s %(lineno)d",
             datefmt=settings.LOG_DATE_FORMAT,
             json_ensure_ascii=False,

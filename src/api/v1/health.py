@@ -33,21 +33,21 @@ async def liveness_probe(
     summary="Readiness probe",
     description=(
         "Kubernetes readiness probe endpoint. Returns 200 if the service is ready to accept traffic "
-        "(database connectivity is verified). Returns 503 if the service is not ready."
+        "Returns 503 if the service is not ready."
     ),
     response_model=ReadinessResponse,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_503_SERVICE_UNAVAILABLE: {
-            "description": "Service is not ready (database unavailable)",
+            "description": "Service is not ready",
             "content": {
                 "application/json": {
                     "example": {
                         "status": "not_ready",
                         "service": "shpetny-fastapi-blueprint",
                         "version": "1.0.0",
-                        "checks": {"database": "error"},
-                        "error": "Database connection failed",
+                        "checks": {"database": "error", "cache": "error"},
+                        "error": "Database connection failed; Cache connection failed",
                     }
                 }
             },
