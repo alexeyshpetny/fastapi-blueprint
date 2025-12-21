@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.router import router
+from src.cache.redis import cache
 from src.core.exceptions import add_exception_handlers
 from src.core.logger import setup_logging
 from src.core.middleware import LoggingMiddleware
@@ -19,8 +20,10 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     logger.info("Application startup", extra={"version": settings.DOC_VERSION})
+    await cache.init()
     yield
     logger.info("Application shutdown")
+    await cache.close()
     await engine.dispose()
 
 
