@@ -12,7 +12,7 @@ if settings.CACHE_ENABLED:
     cache_pool = ConnectionPool.from_url(
         settings.cache_url,
         max_connections=settings.CACHE_MAX_CONNECTIONS,
-        decode_responses=settings.CACHE_DECODE_RESPONSES,
+        decode_responses=False,
         socket_timeout=settings.CACHE_SOCKET_TIMEOUT,
         socket_connect_timeout=settings.CACHE_SOCKET_CONNECT_TIMEOUT,
         retry_on_timeout=settings.CACHE_RETRY_ON_TIMEOUT,

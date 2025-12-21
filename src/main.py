@@ -3,12 +3,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
 
 from src.api.router import router
-from src.cache.redis import close_cache
+from src.cache.redis import cache_client, close_cache
 from src.core.exceptions import add_exception_handlers
 from src.core.logger import setup_logging
-from src.core.middlewares import CacheMiddleware, LoggingMiddleware
+from src.core.middlewares import LoggingMiddleware
 from src.core.settings import settings
 from src.db.db import engine
 from src.dependencies.cache_dependency import get_request_cache_adapter
@@ -21,6 +23,12 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     logger.info("Application startup", extra={"version": settings.DOC_VERSION})
+    if settings.CACHE_ENABLED:
+        FastAPICache.init(
+            RedisBackend(cache_client),
+            prefix=settings.CACHE_KEY_PREFIX,
+        )
+        logger.info("FastAPI Cache initialized with Redis backend")
     yield
     logger.info("Application shutdown")
     await close_cache()
