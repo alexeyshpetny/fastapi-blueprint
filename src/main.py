@@ -13,6 +13,7 @@ from src.core.logger import setup_logging
 from src.core.middlewares import LoggingMiddleware
 from src.core.settings import settings
 from src.db.db import engine
+from src.dependencies.cache_dependency import get_request_cache_adapter
 
 setup_logging()
 
@@ -51,6 +52,16 @@ app.add_middleware(
     log_request_body=settings.LOG_REQUEST_BODY,
     log_slow_requests=settings.LOG_SLOW_REQUESTS,
     slow_request_threshold=settings.LOG_SLOW_REQUEST_THRESHOLD,
+)
+app.add_middleware(
+    CacheMiddleware,
+    request_adapter=get_request_cache_adapter(
+        enabled=settings.CACHE_MIDDLEWARE_ENABLED,
+        cache_enabled=settings.CACHE_ENABLED,
+        ttl=settings.CACHE_MIDDLEWARE_TTL,
+        exclude_paths=settings.CACHE_MIDDLEWARE_EXCLUDE_PATHS,
+        key_prefix=settings.CACHE_MIDDLEWARE_KEY_PREFIX,
+    ),
 )
 app.add_middleware(
     CORSMiddleware,
