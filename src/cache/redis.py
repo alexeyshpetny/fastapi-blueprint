@@ -2,7 +2,6 @@ import logging
 
 from redis.asyncio import Redis
 from redis.asyncio.connection import ConnectionPool
-from redis.exceptions import RedisError
 
 from src.core.settings import settings
 
@@ -30,5 +29,5 @@ async def close_cache() -> None:
         await cache_client.aclose()
         await cache_pool.aclose()
         logger.info("Disconnected from Redis cache")
-    except RedisError as e:
+    except Exception as e:
         logger.warning(f"Error disconnecting from Redis: {e}", exc_info=True)
