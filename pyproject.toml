@@ -47,6 +47,7 @@ dev = [
 asyncio_mode = "auto"
 env = [
     "APP_TESTING=true",
+    "APP_CACHE_ENABLED=false",
 ]
 addopts = [
     "--strict-markers",
