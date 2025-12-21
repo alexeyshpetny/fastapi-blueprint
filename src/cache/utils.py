@@ -13,7 +13,7 @@ def cached(expire: int = settings.CACHE_DEFAULT_TTL) -> cache:
             return {"data": "value"}
 
     Args:
-        expire: Cache TTL in seconds (defaults to CACHE_MIDDLEWARE_TTL)
+        expire: Cache TTL in seconds (defaults to CACHE_DEFAULT_TTL)
 
     Returns:
         fastapi-cache2 cache decorator
