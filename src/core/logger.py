@@ -26,7 +26,7 @@ def setup_logging() -> None:
 
     if settings.LOG_FORMAT.lower() == "json":
         formatter: logging.Formatter = JsonFormatter(
-            fmt="%(asctime)s %(name)s %(levelname)s %(message)s %(pathname)s %(lineno)d",
+            fmt="%(asctime)s %(name)s %(levelname)s %(message)s %(pathname)s %(lineno)d %(request_id)s",
             datefmt=settings.LOG_DATE_FORMAT,
             json_ensure_ascii=False,
         )
