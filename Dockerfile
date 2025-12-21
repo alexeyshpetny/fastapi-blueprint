@@ -7,10 +7,10 @@ RUN pip install --no-cache-dir uv
 
 WORKDIR /app
 
+ENV UV_PROJECT_ENVIRONMENT=/opt/app
+
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
-
-COPY src src
 
 FROM python:3.13-slim AS final
 
@@ -20,13 +20,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PATH="/app/.venv/bin:$PATH"
+    PYTHONPATH=/opt/app/lib/python3.13/site-packages \
+    PATH="/opt/app/bin:${PATH}"
 
 WORKDIR /app
 
-COPY --from=builder /app/.venv /app/.venv
-COPY --from=builder /app/src /app/src
+COPY --from=builder /opt/app /opt/app
+
 COPY scripts/entrypoint.sh /app/entrypoint.sh
+COPY src src
 
 RUN chmod +x /app/entrypoint.sh \
     && groupadd -r appuser \
