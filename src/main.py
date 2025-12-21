@@ -10,7 +10,7 @@ from src.api.router import router
 from src.cache.redis import cache_client, close_cache
 from src.core.exceptions import add_exception_handlers
 from src.core.logger import setup_logging
-from src.core.middlewares import LoggingMiddleware
+from src.core.middlewares import LoggingMiddleware, SecurityHeadersMiddleware
 from src.core.settings import settings
 from src.db.db import engine
 
@@ -60,6 +60,17 @@ app.add_middleware(
     allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
     max_age=settings.CORS_MAX_AGE,
 )
+if settings.SECURITY_HEADERS_ENABLED:
+    app.add_middleware(
+        SecurityHeadersMiddleware,
+        x_content_type_options=settings.SECURITY_X_CONTENT_TYPE_OPTIONS,
+        x_frame_options=settings.SECURITY_X_FRAME_OPTIONS,
+        x_xss_protection=settings.SECURITY_X_XSS_PROTECTION,
+        strict_transport_security=settings.SECURITY_STRICT_TRANSPORT_SECURITY,
+        content_security_policy=settings.SECURITY_CONTENT_SECURITY_POLICY,
+        referrer_policy=settings.SECURITY_REFERRER_POLICY,
+        permissions_policy=settings.SECURITY_PERMISSIONS_POLICY,
+    )
 
 add_exception_handlers(app)
 
