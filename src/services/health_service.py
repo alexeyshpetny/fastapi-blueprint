@@ -54,11 +54,11 @@ class HealthService:
                 await connection.execute(text("SELECT 1"))
                 checks["database"] = "ok"
         except SQLAlchemyError as e:
-            logger.warning("Database health check failed", extra={"error": str(e)})
+            logger.warning("Database readiness check failed", extra={"error": str(e)})
             checks["database"] = "error"
             errors.append(f"Database connection failed: {e!s}")
         except Exception as e:
-            logger.error("Unexpected error during database health check", exc_info=True)
+            logger.error("Unexpected error during database readiness check", exc_info=True)
             checks["database"] = "error"
             errors.append(f"Database error: {e!s}")
 
@@ -71,10 +71,10 @@ class HealthService:
             await self.cache_client.ping()
             checks["cache"] = "ok"
         except RedisError as e:
-            logger.warning("Cache health check failed", extra={"error": str(e)})
+            logger.warning("Cache readiness check failed", extra={"error": str(e)})
             checks["cache"] = "error"
             errors.append(f"Cache connection failed: {e!s}")
         except Exception as e:
-            logger.error("Unexpected error during cache health check", exc_info=True)
+            logger.error("Unexpected error during cache readiness check", exc_info=True)
             checks["cache"] = "error"
             errors.append(f"Cache error: {e!s}")
