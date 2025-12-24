@@ -166,6 +166,24 @@ class AppSettings(BaseSettings):
         description="Include rate limit headers in responses (X-RateLimit-Limit, X-RateLimit-Remaining, etc.)",
     )
 
+    TRUSTED_HOSTS_ENABLED: bool = Field(
+        default=False,
+        description="Enable TrustedHostMiddleware to validate Host header (prevents host header injection attacks)",
+    )
+    TRUSTED_HOSTS: list[str] = Field(
+        default=[],
+        description=(
+            "List of trusted hosts (e.g., ['example.com', '*.example.com']). "
+            "Required if TRUSTED_HOSTS_ENABLED=True. "
+            "Use ['*'] to allow all hosts (not recommended for production)."
+        ),
+    )
+    MAX_REQUEST_BODY_SIZE: int = Field(
+        default=10485760,
+        ge=1024,
+        description="Maximum request body size in bytes (default: 10MB). Prevents DoS via large payloads.",
+    )
+
     @field_validator("CORS_ALLOW_ORIGINS", mode="after")
     @classmethod
     def validate_cors_origins(cls, v: list[str]) -> list[str]:
@@ -183,4 +201,9 @@ class AppSettings(BaseSettings):
             logger.warning(
                 "CORS_ALLOW_ORIGINS is set to ['*'] which allows all origins. "
                 "This is insecure for production. Use specific origins instead."
+            )
+        if self.TRUSTED_HOSTS_ENABLED and not self.TRUSTED_HOSTS:
+            raise ValueError(
+                "TRUSTED_HOSTS_ENABLED=True requires TRUSTED_HOSTS to be set. "
+                "Provide a list of allowed hosts (e.g., ['example.com', '*.example.com'])."
             )
