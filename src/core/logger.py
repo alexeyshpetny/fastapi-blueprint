@@ -25,14 +25,22 @@ def setup_logging() -> None:
     handler.setLevel(settings.log_level_int)
 
     if settings.LOG_FORMAT.lower() == "json":
+        if settings.LOG_INCLUDE_REQUEST_ID:
+            fmt = "%(asctime)s %(name)s %(levelname)s %(message)s %(pathname)s %(lineno)d %(request_id)s"
+        else:
+            fmt = "%(asctime)s %(name)s %(levelname)s %(message)s %(pathname)s %(lineno)d"
         formatter: logging.Formatter = JsonFormatter(
-            fmt="%(asctime)s %(name)s %(levelname)s %(message)s %(pathname)s %(lineno)d %(request_id)s",
+            fmt=fmt,
             datefmt=settings.LOG_DATE_FORMAT,
             json_ensure_ascii=False,
         )
     else:
+        if settings.LOG_INCLUDE_REQUEST_ID:
+            fmt = "%(asctime)s [%(levelname)-8s] [%(name)s] [%(request_id)s] %(message)s"
+        else:
+            fmt = "%(asctime)s [%(levelname)-8s] [%(name)s] %(message)s"
         formatter = logging.Formatter(
-            fmt="%(asctime)s [%(levelname)-8s] [%(name)s] [%(request_id)s] %(message)s",
+            fmt=fmt,
             datefmt=settings.LOG_DATE_FORMAT,
         )
 
