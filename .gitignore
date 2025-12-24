@@ -135,8 +135,12 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+# CRITICAL: .env files contain secrets and must NEVER be committed to version control!
+# Use .env.example as a template and store actual secrets in secure secret management services.
 .env
 .envrc
+.env.local
+.env.*.local
 .venv
 env/
 venv/

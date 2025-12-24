@@ -1,4 +1,5 @@
 import logging
+from typing import Literal
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
@@ -13,15 +14,22 @@ class AppSettings(BaseSettings):
         pattern=r"^/.*",
     )
 
-    TESTING: bool = Field(
-        default=False,
-        description="Enable testing mode. Auto-set to True during pytest execution.",
+    ENVIRONMENT: Literal[
+        "production",
+        "development",
+        "testing",
+    ] = Field(
+        default="development",
+        description=(
+            "Application environment: 'production', 'development', or 'testing'. "
+            "Used for validation and security checks."
+        ),
     )
 
     DEBUG: bool = Field(
         default=False,
         description=(
-            "Enable debug mode (shows detailed error pages with stack traces). "
+            "Enable FastAPI debug mode (shows detailed error pages with stack traces). "
             "WARNING: Never enable in production for security reasons."
         ),
     )
@@ -184,24 +192,36 @@ class AppSettings(BaseSettings):
         description="Maximum request body size in bytes (default: 10MB). Prevents DoS via large payloads.",
     )
 
-    @field_validator("CORS_ALLOW_ORIGINS", mode="after")
+    @field_validator("ENVIRONMENT", mode="before")
     @classmethod
-    def validate_cors_origins(cls, v: list[str]) -> list[str]:
-        if not v:
-            raise ValueError("CORS_ALLOW_ORIGINS cannot be empty")
-        return v
+    def normalize_environment(cls, v: str) -> str:
+        return v.lower() if isinstance(v, str) else v
+
+    @property
+    def is_production(self) -> bool:
+        return getattr(self, "ENVIRONMENT", "development") == "production"
 
     def model_post_init(self, _) -> None:
+        if not self.CORS_ALLOW_ORIGINS:
+            raise ValueError("CORS_ALLOW_ORIGINS cannot be empty")
+
+        if not self.is_production:
+            return
+
+        if self.DEBUG:
+            raise ValueError("DEBUG=True is not allowed in production. This exposes sensitive error information.")
+        
+        if self.CORS_ALLOW_ORIGINS == ["*"]:
+            raise ValueError(
+                "CORS_ALLOW_ORIGINS=['*'] is not allowed in production. Specify allowed origins for security."
+            )
+        
         if self.CORS_ALLOW_CREDENTIALS and self.CORS_ALLOW_ORIGINS == ["*"]:
             raise ValueError(
                 "CORS_ALLOW_CREDENTIALS cannot be True when CORS_ALLOW_ORIGINS is ['*']. "
                 "This is a security risk. Use specific origins instead."
             )
-        if self.CORS_ALLOW_ORIGINS == ["*"] and not self.TESTING:
-            logger.warning(
-                "CORS_ALLOW_ORIGINS is set to ['*'] which allows all origins. "
-                "This is insecure for production. Use specific origins instead."
-            )
+        
         if self.TRUSTED_HOSTS_ENABLED and not self.TRUSTED_HOSTS:
             raise ValueError(
                 "TRUSTED_HOSTS_ENABLED=True requires TRUSTED_HOSTS to be set. "

@@ -1,5 +1,5 @@
 from src.core.settings import settings
 
 
-def test_testing_flag_is_enabled() -> None:
-    assert settings.TESTING is True, "TESTING flag should be True during tests"
+def test_environment_is_testing() -> None:
+    assert settings.ENVIRONMENT == "testing", "ENVIRONMENT should be 'testing' during tests"
