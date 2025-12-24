@@ -5,7 +5,7 @@ HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-8080}"
 
 echo "Starting FastAPI server on ${HOST}:${PORT}..."
-exec uvicorn src.main:app \
+exec uvicorn src.main:application \
     --host "${HOST}" \
     --port "${PORT}" \
     --timeout-keep-alive 5 \
