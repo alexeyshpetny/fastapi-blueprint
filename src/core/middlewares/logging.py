@@ -1,7 +1,7 @@
 import logging
 import time
 import uuid
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -25,7 +25,11 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         self.log_slow_requests = log_slow_requests
         self.slow_request_threshold = slow_request_threshold
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
         request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
         request_id_context.set(request_id)
 
@@ -74,7 +78,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 logger.info("Request completed", extra=log_data)
 
             response.headers["X-Request-ID"] = request_id
-            return response  # type: ignore[return-value]
+            return response
 
         except Exception as exc:
             process_time = time.time() - start_time

@@ -1,9 +1,14 @@
+from collections.abc import Callable
+from typing import Any
+
 from fastapi_cache.decorator import cache
 
 from src.core.settings import settings
 
 
-def cached(expire: int = settings.CACHE_DEFAULT_TTL) -> cache:
+def cached(
+    expire: int = settings.CACHE_DEFAULT_TTL,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Helper decorator for fastapi-cache2 with default TTL from settings.
 
     Usage:

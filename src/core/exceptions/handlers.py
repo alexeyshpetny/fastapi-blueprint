@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -85,7 +86,7 @@ def add_exception_handlers(app: FastAPI) -> None:
             exc_info=False,
         )
 
-        content = {"error": exc.message, "request_id": request_id}
+        content: dict[str, Any] = {"error": exc.message, "request_id": request_id}
         if exc.details is not None:
             content["details"] = exc.details
 
@@ -115,7 +116,7 @@ def add_exception_handlers(app: FastAPI) -> None:
             error_message = "An unexpected error occurred. Please try again later."
             details = None
 
-        content = {"error": error_message, "request_id": request_id}
+        content: dict[str, Any] = {"error": error_message, "request_id": request_id}
         if details:
             content["details"] = details
 

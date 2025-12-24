@@ -210,18 +210,18 @@ class AppSettings(BaseSettings):
 
         if self.DEBUG:
             raise ValueError("DEBUG=True is not allowed in production. This exposes sensitive error information.")
-        
+
         if self.CORS_ALLOW_ORIGINS == ["*"]:
             raise ValueError(
                 "CORS_ALLOW_ORIGINS=['*'] is not allowed in production. Specify allowed origins for security."
             )
-        
+
         if self.CORS_ALLOW_CREDENTIALS and self.CORS_ALLOW_ORIGINS == ["*"]:
             raise ValueError(
                 "CORS_ALLOW_CREDENTIALS cannot be True when CORS_ALLOW_ORIGINS is ['*']. "
                 "This is a security risk. Use specific origins instead."
             )
-        
+
         if self.TRUSTED_HOSTS_ENABLED and not self.TRUSTED_HOSTS:
             raise ValueError(
                 "TRUSTED_HOSTS_ENABLED=True requires TRUSTED_HOSTS to be set. "

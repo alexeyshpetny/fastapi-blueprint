@@ -7,6 +7,9 @@ from src.core.settings import settings
 
 logger = logging.getLogger(__name__)
 
+cache_pool: ConnectionPool | None
+cache_client: Redis | None
+
 if settings.CACHE_ENABLED:
     cache_pool = ConnectionPool.from_url(
         settings.cache_url,
@@ -26,8 +29,10 @@ async def close_cache() -> None:
     if not settings.CACHE_ENABLED:
         return
     try:
-        await cache_client.aclose()
-        await cache_pool.aclose()
+        if cache_client is not None:
+            await cache_client.aclose()
+        if cache_pool is not None:
+            await cache_pool.aclose()
         logger.info("Disconnected from Redis cache")
     except Exception as e:
         logger.warning(f"Error disconnecting from Redis: {e}", exc_info=True)

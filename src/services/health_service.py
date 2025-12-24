@@ -29,8 +29,8 @@ class HealthService:
 
     async def check_readiness(self) -> dict[str, Any]:
         logger.debug("Readiness check requested")
-        checks = {}
-        errors = []
+        checks: dict[str, str] = {}
+        errors: list[str] = []
 
         await self._check_database(checks, errors)
         if settings.CACHE_ENABLED:
