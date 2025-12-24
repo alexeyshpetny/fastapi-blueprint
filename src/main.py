@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     logger.info("Application startup", extra={"version": settings.DOC_VERSION})
-    if settings.CACHE_ENABLED and cache_client is not None:
+    if cache_client is not None:
         FastAPICache.init(
             RedisBackend(cache_client),
             prefix=settings.CACHE_KEY_PREFIX,
