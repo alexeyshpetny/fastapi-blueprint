@@ -62,12 +62,6 @@ def create_app() -> FastAPI:
     )
 
     if settings.TRUSTED_HOSTS_ENABLED:
-        if not settings.TRUSTED_HOSTS:
-            logger.warning(
-                "TRUSTED_HOSTS_ENABLED=True but TRUSTED_HOSTS is empty. "
-                "TrustedHostMiddleware will reject all requests. "
-                "Set TRUSTED_HOSTS to enable host validation."
-            )
         app.add_middleware(
             TrustedHostMiddleware,
             allowed_hosts=settings.TRUSTED_HOSTS,
