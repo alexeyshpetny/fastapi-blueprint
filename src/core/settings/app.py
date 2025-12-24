@@ -1,5 +1,9 @@
-from pydantic import Field
+import logging
+
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
+
+logger = logging.getLogger(__name__)
 
 
 class AppSettings(BaseSettings):
@@ -62,21 +66,33 @@ class AppSettings(BaseSettings):
     CORS_ALLOW_ORIGINS: list[str] = Field(
         default=["*"],
         description=(
-            "List of allowed CORS origins (use ['*'] for all origins). "
-            "WARNING: Change to specific origins in production for security."
+            "List of allowed CORS origins. "
+            "WARNING: ['*'] allows all origins and is insecure for production. "
+            "Use specific origins like ['https://example.com', 'https://app.example.com'] in production. "
+            "Cannot use ['*'] with CORS_ALLOW_CREDENTIALS=True."
         ),
     )
     CORS_ALLOW_METHODS: list[str] = Field(
-        default=["*"],
-        description="List of allowed HTTP methods for CORS (use ['*'] for all methods)",
+        default=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        description=(
+            "List of allowed HTTP methods for CORS. "
+            "Default: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']. "
+            "Use ['*'] to allow all methods (not recommended for production)."
+        ),
     )
     CORS_ALLOW_HEADERS: list[str] = Field(
         default=["*"],
-        description="List of allowed HTTP headers for CORS (use ['*'] for all headers)",
+        description=(
+            "List of allowed HTTP headers for CORS. "
+            "Use ['*'] to allow all headers, or specify: ['Content-Type', 'Authorization', 'X-Request-ID']"
+        ),
     )
     CORS_ALLOW_CREDENTIALS: bool = Field(
         default=False,
-        description="Whether to allow credentials in CORS requests",
+        description=(
+            "Whether to allow credentials in CORS requests. "
+            "WARNING: Cannot be True if CORS_ALLOW_ORIGINS contains ['*']."
+        ),
     )
     CORS_MAX_AGE: int = Field(
         default=600,
@@ -149,3 +165,22 @@ class AppSettings(BaseSettings):
         default=True,
         description="Include rate limit headers in responses (X-RateLimit-Limit, X-RateLimit-Remaining, etc.)",
     )
+
+    @field_validator("CORS_ALLOW_ORIGINS", mode="after")
+    @classmethod
+    def validate_cors_origins(cls, v: list[str]) -> list[str]:
+        if not v:
+            raise ValueError("CORS_ALLOW_ORIGINS cannot be empty")
+        return v
+
+    def model_post_init(self, _) -> None:
+        if self.CORS_ALLOW_CREDENTIALS and self.CORS_ALLOW_ORIGINS == ["*"]:
+            raise ValueError(
+                "CORS_ALLOW_CREDENTIALS cannot be True when CORS_ALLOW_ORIGINS is ['*']. "
+                "This is a security risk. Use specific origins instead."
+            )
+        if self.CORS_ALLOW_ORIGINS == ["*"] and not self.TESTING:
+            logger.warning(
+                "CORS_ALLOW_ORIGINS is set to ['*'] which allows all origins. "
+                "This is insecure for production. Use specific origins instead."
+            )
