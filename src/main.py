@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from slowapi.errors import RateLimitExceeded
 
 from src.api.router import router
 from src.cache.redis import cache_client, close_cache
@@ -13,6 +14,7 @@ from src.core.logger import setup_logging
 from src.core.middlewares import LoggingMiddleware, SecurityHeadersMiddleware
 from src.core.settings import settings
 from src.db.db import engine
+from src.rate_limit import get_rate_limit_exceeded_handler, limiter
 
 setup_logging()
 
@@ -71,6 +73,11 @@ if settings.SECURITY_HEADERS_ENABLED:
         referrer_policy=settings.SECURITY_REFERRER_POLICY,
         permissions_policy=settings.SECURITY_PERMISSIONS_POLICY,
     )
+if settings.RATE_LIMIT_ENABLED:
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, get_rate_limit_exceeded_handler())
+    logger.info(f"Rate limiting enabled with default limit: {settings.RATE_LIMIT_DEFAULT}")
+
 
 add_exception_handlers(app)
 

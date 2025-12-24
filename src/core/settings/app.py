@@ -128,3 +128,24 @@ class AppSettings(BaseSettings):
             "Example: 'geolocation=(), microphone=(), camera=()'"
         ),
     )
+
+    RATE_LIMIT_ENABLED: bool = Field(
+        default=False,
+        description="Enable rate limiting middleware",
+    )
+    RATE_LIMIT_DEFAULT: str = Field(
+        default="100/minute",
+        description="Default rate limit for all endpoints (format: 'count/period', e.g., '100/minute', '10/second')",
+    )
+    RATE_LIMIT_STORAGE_URI: str | None = Field(
+        default=None,
+        description=(
+            "Redis URI for rate limiting storage. "
+            "If None, uses in-memory storage (not recommended for production with multiple workers). "
+            "Example: 'redis://localhost:6379/1'"
+        ),
+    )
+    RATE_LIMIT_HEADERS_ENABLED: bool = Field(
+        default=True,
+        description="Include rate limit headers in responses (X-RateLimit-Limit, X-RateLimit-Remaining, etc.)",
+    )
