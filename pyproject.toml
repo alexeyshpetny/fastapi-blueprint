@@ -48,7 +48,7 @@ dev = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 env = [
-    "APP_TESTING=true",
+    "APP_ENVIRONMENT=testing",
     "APP_CACHE_ENABLED=false",
     "APP_CACHE_HOST=localhost",
     "APP_DB_HOST=localhost",

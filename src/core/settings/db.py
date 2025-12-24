@@ -52,6 +52,25 @@ class DatabaseSettings(BaseSettings):
         description="Enable SQLAlchemy query logging (useful for debugging)",
     )
 
+    def model_post_init(self, _) -> None:
+        if not getattr(self, "is_production", False):
+            return
+
+        if self.DB_PASSWORD == "postgres":
+            raise ValueError(
+                "DB_PASSWORD must be changed from default value 'postgres' "
+                "in production. Use a secure password and store it in a "
+                "secret management service (AWS Secrets Manager, "
+                "HashiCorp Vault, Google Secret Manager, etc.)."
+            )
+
+        if not self.DB_PASSWORD or len(self.DB_PASSWORD) < 8:
+            raise ValueError(
+                "DB_PASSWORD must be at least 8 characters long. "
+                "Use a strong password and store it securely in a "
+                "secret management service."
+            )
+
     @property
     def db_url(self: "DatabaseSettings") -> str:
         """Build db URL with properly encoded credentials."""
