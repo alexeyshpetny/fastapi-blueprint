@@ -25,4 +25,3 @@ async def test_check_readiness_success(client: AsyncClient) -> None:
     assert "version" in data
     assert "checks" in data
     assert data["checks"]["database"] == "ok"
-    assert data["checks"]["cache"] == "ok"

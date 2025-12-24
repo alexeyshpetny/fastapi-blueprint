@@ -30,6 +30,7 @@ dependencies = [
     "pydantic-settings>=2.12.0,<3.0.0",
     "python-json-logger>=3.2.0,<4.0.0",
     "redis>=5.2.0,<6.0.0",
+    "slowapi>=0.1.9,<1.0.0",
     "sqlalchemy[asyncio]>=2.0.0,<3.0.0",
     "uvicorn[standard]>=0.38.0,<1.0.0",
 ]
@@ -49,6 +50,8 @@ asyncio_mode = "auto"
 env = [
     "APP_TESTING=true",
     "APP_CACHE_ENABLED=false",
+    "APP_CACHE_HOST=localhost",
+    "APP_DB_HOST=localhost",
 ]
 addopts = [
     "--strict-markers",
