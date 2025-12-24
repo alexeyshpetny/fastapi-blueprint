@@ -85,6 +85,9 @@ down:
 connect:
 	docker exec -it $(SERVICE_NAME) /bin/bash
 
+.PHONY: logs
+logs:
+	docker logs -f $(SERVICE_NAME)
 
 .PHONY: migrate
 migrate:
