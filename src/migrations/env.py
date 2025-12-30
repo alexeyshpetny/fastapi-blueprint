@@ -17,7 +17,7 @@ if project_root not in sys.path:
 # Import all models so they register with Base.metadata
 # This must be imported after Base but before target_metadata is used
 from src.core.settings import settings  # noqa: E402
-from src.db import Base  # noqa: E402
+from src.models import Base  # noqa: E402
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -17,11 +17,12 @@ from src.core.middlewares import (
     RequestSizeLimitMiddleware,
     SecurityHeadersMiddleware,
 )
-from src.core.settings import settings
 from src.db.db import engine
 from src.rate_limit import get_rate_limit_exceeded_handler, limiter
 
 setup_logging()
+
+from src.core.settings import settings  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
