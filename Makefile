@@ -12,6 +12,7 @@ help:
 	@echo "  make test-unit - Run unit tests only"
 	@echo "  make test-integration - Run integration tests only"
 	@echo "  make test-fast - Run tests without coverage (faster)"
+	@echo "  make ci      - Run all CI checks (lint, type-check, test, build)"
 	@echo "  make clean   - Remove cache and build artifacts"
 	@echo "  make start   - Build and start Docker containers"
 	@echo "  make build   - Build Docker images"
@@ -39,20 +40,45 @@ fix:
 	uv run ruff check --fix .
 
 .PHONY: test
-test:
+test: test-services-up
 	uv run pytest
+
+.PHONY: test-services-up
+test-services-up:
+	@echo "Starting test services (postgres, redis)..."
+	@docker compose up -d postgres redis
+	@echo "Waiting for services to be ready..."
+	@timeout 30 bash -c 'until docker compose exec -T postgres pg_isready > /dev/null 2>&1; do sleep 1; done' || true
+	@timeout 10 bash -c 'until docker compose exec -T redis redis-cli ping > /dev/null 2>&1; do sleep 1; done' || true
+	@echo "Services are ready!"
 
 .PHONY: test-unit
 test-unit:
 	uv run pytest -m unit
 
 .PHONY: test-integration
-test-integration:
+test-integration: test-services-up
 	uv run pytest -m integration
 
 .PHONY: test-fast
-test-fast:
+test-fast: test-services-up
 	uv run pytest -x --ff
+
+.PHONY: ci
+ci: install
+	@echo "Running CI checks..."
+	@echo "1. Linting..."
+	uv run ruff check .
+	uv run ruff format --check .
+	@echo "2. Type checking..."
+	uv run mypy .
+	@echo "3. Starting test services..."
+	@$(MAKE) test-services-up
+	@echo "4. Running tests..."
+	uv run pytest
+	@echo "5. Building Docker image..."
+	docker compose build
+	@echo "All CI checks passed!"
 
 .PHONY: clean
 clean:

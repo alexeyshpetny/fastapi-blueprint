@@ -51,8 +51,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+      - name: Start test services
+        run: docker compose up -d postgres redis
+      - name: Wait for services
+        run: |
+          timeout 30 bash -c 'until docker compose exec -T postgres pg_isready; do sleep 1; done'
+          timeout 10 bash -c 'until docker compose exec -T redis redis-cli ping; do sleep 1; done'
       - run: uv sync --group dev --frozen
       - run: uv run pytest
+      - name: Cleanup
+        if: always()
+        run: docker compose down
 
   docker-build:
     runs-on: ubuntu-latest
