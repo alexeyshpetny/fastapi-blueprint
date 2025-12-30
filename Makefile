@@ -5,9 +5,11 @@ ALEMBIC_CONFIG = src/alembic.ini
 help:
 	@echo "Available targets:"
 	@echo "  make install - Install dependencies (with dev group)"
+	@echo "  make ci      - Run all CI checks (lint, type-check, security, tests)"
 	@echo "  make lint    - Check code without making changes (ruff, mypy)"
 	@echo "  make format  - Format code (ruff format and fix)"
 	@echo "  make fix     - Auto-fix linting issues"
+	@echo "  make security - Run security checks (bandit)"
 	@echo "  make test    - Run all tests with coverage"
 	@echo "  make test-unit - Run unit tests only"
 	@echo "  make test-integration - Run integration tests only"
@@ -24,6 +26,9 @@ help:
 install:
 	uv sync --group dev
 
+.PHONY: ci
+ci: lint security test
+
 .PHONY: lint
 lint:
 	uv run ruff check .
@@ -37,6 +42,10 @@ format:
 .PHONY: fix
 fix:
 	uv run ruff check --fix .
+
+.PHONY: security
+security:
+	uv run bandit -c pyproject.toml -r src/ -ll
 
 .PHONY: test
 test:
