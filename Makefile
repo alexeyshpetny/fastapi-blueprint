@@ -28,7 +28,6 @@ install:
 
 .PHONY: ci
 ci: lint security test
-	@echo "All CI checks passed!"
 
 .PHONY: lint
 lint:
