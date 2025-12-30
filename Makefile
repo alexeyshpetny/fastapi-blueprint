@@ -12,7 +12,6 @@ help:
 	@echo "  make test-unit - Run unit tests only"
 	@echo "  make test-integration - Run integration tests only"
 	@echo "  make test-fast - Run tests without coverage (faster)"
-	@echo "  make ci      - Run all CI checks (lint, type-check, test, build)"
 	@echo "  make clean   - Remove cache and build artifacts"
 	@echo "  make start   - Build and start Docker containers"
 	@echo "  make build   - Build Docker images"
@@ -54,22 +53,6 @@ test-integration:
 .PHONY: test-fast
 test-fast:
 	uv run pytest -x --ff
-
-.PHONY: ci
-ci: install
-	@echo "Running CI checks..."
-	@echo "1. Linting..."
-	uv run ruff check .
-	uv run ruff format --check .
-	@echo "2. Type checking..."
-	uv run mypy .
-	@echo "3. Starting test services..."
-	@$(MAKE) test-services-up
-	@echo "4. Running tests..."
-	uv run pytest
-	@echo "5. Building Docker image..."
-	docker compose build
-	@echo "All CI checks passed!"
 
 .PHONY: clean
 clean:
