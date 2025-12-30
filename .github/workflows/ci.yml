@@ -40,11 +40,6 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    env:
-      APP_ENVIRONMENT: testing
-      APP_CACHE_ENABLED: false
-      APP_CACHE_HOST: localhost
-      APP_DB_HOST: localhost
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -56,7 +51,6 @@ jobs:
           cat > .env << EOF
           POSTGRES_USER=postgres
           POSTGRES_PASSWORD=postgres
-          POSTGRES_DB=test_db
           REDIS_PASSWORD=
           EOF
       - name: Start test services
