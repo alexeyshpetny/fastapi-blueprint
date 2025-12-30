@@ -101,7 +101,6 @@ jobs:
           tags: shpetny-fastapi-blueprint:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - run: docker images | grep shpetny-fastapi-blueprint
       - uses: aquasecurity/trivy-action@master
         with:
           image-ref: shpetny-fastapi-blueprint:test
