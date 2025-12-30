@@ -56,6 +56,12 @@ class DatabaseSettings(BaseSettings):
         if not getattr(self, "is_production", False):
             return
 
+        if not self.DB_PASSWORD:
+            raise ValueError(
+                "DB_PASSWORD cannot be empty in production. "
+                "Use a secure password and store it in a secret management service."
+            )
+
         if self.DB_PASSWORD == "postgres":
             raise ValueError(
                 "DB_PASSWORD must be changed from default value 'postgres' "
@@ -64,7 +70,7 @@ class DatabaseSettings(BaseSettings):
                 "HashiCorp Vault, Google Secret Manager, etc.)."
             )
 
-        if not self.DB_PASSWORD or len(self.DB_PASSWORD) < 8:
+        if len(self.DB_PASSWORD) < 8:
             raise ValueError(
                 "DB_PASSWORD must be at least 8 characters long. "
                 "Use a strong password and store it securely in a "
