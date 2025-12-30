@@ -1,0 +1,180 @@
+---
+alwaysApply: true
+
+# FastAPI Production Blueprint - Project Rules
+
+## Python Standards
+- Use Python 3.13 for all code
+- Split code into logically grouped modules inside folders
+- Main entrypoint must be main.py and contain minimal logic – primarily imports and high-level orchestration
+- Every function and method must include type hints for all parameters and return types
+- Do not add type hints to local variables inside functions
+- Delete all unused imports immediately
+- Keep code clean, readable, and minimal, while retaining clarity
+- Always use uv or poetry as the dependency and packaging manager
+- Variable and function names must be human-readable and self-explanatory at first glance
+- Use Python dictionaries or polymorphism instead of multiple if statements where applicable
+- Always favor explicit exceptions over silent exits or fallbacks
+- Maintain method order in classes: public methods first, then protected (_method), then private (__method)
+- Prefer code simplification when possible, but never at the cost of readability
+- Use dataclasses, NamedTuples, and TypedDict appropriately for data structures
+- Prefer composition over inheritance
+- Use context managers for resource management
+
+## Async/Await Patterns
+- All I/O operations (database, HTTP, cache, file) must be async
+- Use `async def` for all route handlers and service methods that perform I/O
+- Use `await` for all async operations – never mix sync and async I/O
+- Use `asynccontextmanager` for async resource management (e.g., lifespan events)
+- Use `AsyncIterator` for dependency injection generators (e.g., `get_session()`)
+- Never use `asyncio.run()` in application code – only in scripts or tests
+- Use `async with` for database sessions and connections
+- Handle async exceptions properly – log with context, don't silence errors
+
+## Project Structure
+- Database layer: src/db/ (models, session management, migrations)
+- API layer: src/api/ (routers, schemas, request/response models)
+- Core/Config: src/core/ (settings, exceptions, middlewares, logging)
+- Services: src/services/ (business logic, domain services)
+- Dependencies: src/dependencies/ (FastAPI dependency functions)
+- Cache: src/cache/ (cache utilities and clients)
+- Utils: src/utils/ (general utilities only, if needed)
+- Each layer should have clear responsibilities and minimal coupling
+
+## FastAPI Best Practices
+- Keep routers thin – delegate business logic to services
+- Use dependency injection via `Depends()` for all external dependencies (DB sessions, services, clients)
+- Separate concerns: API (routers/schemas) → Services (business logic) → Database (data access)
+- Version your API from the start: `/api/v1/`, `/api/v2/`
+- Use Pydantic schemas for all request/response validation
+- Keep main.py minimal – only app setup, middleware configuration, and router inclusion
+- Use `APIRouter` with tags for organization
+- Document endpoints with `summary`, `description`, and `responses` parameters
+- Use appropriate HTTP status codes (200, 201, 400, 401, 403, 404, 422, 500, 503)
+- Use `status_code` parameter in route decorators for explicit status codes
+
+## Dependency Injection
+- Create dependency functions in `src/dependencies/` for reusable dependencies
+- Use `Depends()` for database sessions: `session: AsyncSession = Depends(get_session)`
+- Use `Depends()` for services: `service: Service = Depends(get_service)`
+- Dependency functions should be simple factories that return instances
+- For complex dependencies, use classes with `__call__` method
+- Never import services directly in routers – always use dependency injection
+- Make dependencies testable by accepting parameters in constructors
+
+## Database Patterns
+- Use SQLAlchemy 2.0 async patterns exclusively
+- All database operations must be async
+- Use `AsyncSession` from `sqlalchemy.ext.asyncio`
+- Use `async with session.begin()` for transactions that need explicit commit/rollback
+- Use `session.execute()` with `select()`, `insert()`, `update()`, `delete()` statements
+- Use `session.scalars()` for single-result queries, `session.scalars().all()` for multiple results
+- Always use parameterized queries – never string formatting for SQL
+- Use Alembic for all database migrations
+- Models should inherit from `Base` (DeclarativeBase)
+- Use type hints for model relationships: `relationship[Model]`
+- Handle `SQLAlchemyError` exceptions explicitly, log errors with context
+- Use connection pooling settings from `DatabaseSettings`
+- Never commit transactions in service methods – let FastAPI dependency handle it via context manager
+
+## Error Handling
+- Create custom exceptions in `src/core/exceptions/exceptions.py` inheriting from `ApplicationError`
+- Use appropriate HTTP status codes in custom exceptions
+- Log errors with context: request_id, path, method, user_id (if available)
+- Use exception handlers in `src/core/exceptions/handlers.py` for consistent error responses
+- Never expose internal error details in production – use generic messages
+- Include `request_id` in all error responses for traceability
+- Handle validation errors with `RequestValidationError` and `PydanticValidationError`
+- Use `exc_info=True` in logger.error() for unhandled exceptions to capture stack traces
+- Distinguish between client errors (4xx) and server errors (5xx) in logging level
+
+## Settings & Configuration
+- Use Pydantic Settings (`BaseSettings`) for all configuration
+- Split settings into logical groups: `AppSettings`, `DatabaseSettings`, `CacheSettings`, `LoggingSettings`
+- Use `Field()` with descriptions, defaults, and validators
+- Validate settings in `model_post_init()` for production safety checks
+- Use environment variables for all configuration – never hardcode values
+- Store secrets in environment variables or secret management services (never in code)
+- Use `model_config = ConfigDict(env_file=".env")` for local development
+- Validate required settings in production (e.g., non-empty passwords, secure defaults)
+
+## Caching
+- Use Redis for caching via `fastapi-cache2`
+- Use `@cached()` decorator from `src/cache/utils.py` for endpoint caching
+- Set appropriate TTL values based on data freshness requirements
+- Cache keys should be namespaced with `CACHE_KEY_PREFIX`
+- Handle cache failures gracefully – log errors but don't fail requests
+- Use cache for expensive operations (database queries, external API calls)
+- Invalidate cache appropriately when data changes
+
+## Logging
+- Always use the logger package (configured in `src/core/logger.py`) for all logging
+- Do not use print statements – use logger.debug/info/warning/error
+- Use structured logging with `extra` parameter for context
+- Include request_id in logs when available
+- Log at appropriate levels: DEBUG (detailed), INFO (flow), WARNING (issues), ERROR (failures)
+- When handling exceptions: use try/except blocks with logging, do not silence errors
+- Log every error with context (request_id, path, method, error details)
+- Use `exc_info=True` for exceptions to capture stack traces
+
+## Testing
+- Use pytest for all testing
+- Write tests for every module and function
+- Run tests after every change: `pytest`, `ruff check .`, `mypy src/`
+- Use `pytest.mark.parametrize` for testing multiple inputs
+- Use fixtures in `tests/conftest.py` for shared test setup
+- Use `pytest.fixture` for database sessions, test clients, and services
+- Mock external dependencies (Redis, external APIs) in tests
+- Use `pytest.mark.unit`, `pytest.mark.integration`, `pytest.mark.e2e` markers appropriately
+- Test both success and error cases
+- Test edge cases: empty inputs, None values, boundary conditions
+- `pytest.mark.asyncio` is not required (asyncio_mode = "auto" is configured)
+- Use `AsyncClient` from `httpx` for testing FastAPI endpoints
+- Keep test code clean and readable – tests are documentation
+
+## Code Quality
+- After every change: run tests, run linters (ruff and mypy), fix all errors
+- Ensure code remains clean and compliant before committing
+- Rewrite code to use explicit exceptions:
+  Wrong: `if len(args) == 2: do_something() else: print("Error")`
+  Correct: `if len(args) != 2: raise ValueError("Invalid arguments"); do_something()`
+- Use type guards and assertions appropriately
+- Avoid `Any` type – use specific types or `TypeVar`/`Protocol` when needed
+- Use `# type: ignore` or `# noqa` only when necessary, with comments explaining why
+
+## Security
+- Validate and sanitize all user input via Pydantic schemas
+- Use environment variables for secrets – never hardcode credentials
+- Use secure defaults in production (strong passwords, HTTPS, security headers)
+- Enable security middleware in production (SecurityHeadersMiddleware, TrustedHostMiddleware)
+- Use rate limiting for API endpoints
+- Validate request sizes to prevent DoS attacks
+- Use CORS appropriately – restrict origins, methods, and headers
+- Log security events (authentication failures, authorization denials)
+- Use parameterized queries to prevent SQL injection
+- Never log sensitive data (passwords, tokens, PII)
+
+## Documentation
+- Add docstrings to public classes and complex functions (Google or NumPy style)
+- Document API endpoints with `summary` and `description` in route decorators
+- Document request/response models with Pydantic `Field(description=...)`
+- Use type hints as inline documentation
+- Document design decisions in comments when non-obvious
+- Keep README.md up to date with setup and usage instructions
+
+## Code Style
+- Write production-ready code with error handling, logging, and validation
+- Focus on implementing the solution rather than lengthy explanations
+- When code changes are complete, indicate completion
+- If architectural decisions need explanation, provide brief context in code comments
+
+## Tools
+- Use ruff for linting and import sorting (isort is handled by ruff's "I" rule)
+- Use mypy for type checking
+- Use bandit for security linting (in dev dependencies)
+- Line length: 120 characters (configured in ruff)
+- No need for standalone isort - ruff handles it
+- Run `ruff check .` and `ruff format .` before committing
+- Run `mypy src/` to check types before committing
+
+---
