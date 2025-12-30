@@ -47,12 +47,6 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Create .env file for docker-compose
-        run: |
-          cat > .env << EOF
-          POSTGRES_USER=postgres
-          POSTGRES_PASSWORD=postgres
-          REDIS_PASSWORD=
-          EOF
       - name: Start test services
         run: docker compose up -d postgres redis
       - name: Wait for services
