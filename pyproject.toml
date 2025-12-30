@@ -111,3 +111,9 @@ warn_unused_ignores = true
 warn_redundant_casts = true
 strict_optional = true
 show_error_codes = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "migrations", "scripts"]
+skips = [
+    "B101",  # Skip assert_used (assert is fine in tests, but we exclude tests anyway)
+]
