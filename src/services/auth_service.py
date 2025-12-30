@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 from typing import Final
 
 from src.adapters.uow import SqlAlchemyUnitOfWork
+from src.auth.jwt import assert_token_type, create_access_token, create_refresh_token, decode_token
 from src.auth.password import get_password_hash, verify_password
 from src.core.exceptions.exceptions import ConflictError, NotFoundError
 from src.core.settings import settings
@@ -70,3 +71,45 @@ class AuthService:
 
     async def get_user_by_email(self, email: str) -> User | None:
         return await self._uow.users.get_by_email(email)
+
+    async def login_user(self, email: str, password: str) -> tuple[str, str, User]:
+        user = await self.authenticate_user(email, password)
+        if user is None:
+            raise ConflictError("Invalid email or password")
+
+        role_names = [role.name for role in user.roles]
+        access_token = create_access_token(sub=str(user.id), email=user.email, roles=role_names)
+        refresh_token = create_refresh_token(sub=str(user.id))
+
+        return access_token, refresh_token, user
+
+    async def refresh_access_token(self, refresh_token: str) -> str:
+        try:
+            payload = decode_token(refresh_token)
+            assert_token_type(payload, "refresh")
+        except Exception as e:
+            logger.warning("Invalid refresh token", extra={"error": str(e)})
+            raise ConflictError("Invalid refresh token") from None
+
+        if payload.is_expired():
+            raise ConflictError("Refresh token expired")
+
+        try:
+            user_id = int(payload.sub)
+        except (ValueError, TypeError):
+            raise ConflictError("Invalid token payload") from None
+
+        user = await self.get_user_by_id(user_id)
+        if user is None or not user.is_active:
+            raise ConflictError("User not found or inactive") from None
+
+        role_names = [role.name for role in user.roles]
+        return create_access_token(sub=str(user_id), email=user.email, roles=role_names)
+
+    async def change_user_password(self, user: User, current_password: str, new_password: str) -> None:
+        if not verify_password(current_password, user.hashed_password):
+            logger.warning("Failed password change attempt", extra={"user_id": user.id})
+            raise ConflictError("Invalid current password") from None
+
+        user.hashed_password = get_password_hash(new_password)
+        logger.info("Password changed successfully", extra={"user_id": user.id})

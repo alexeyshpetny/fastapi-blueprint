@@ -1,4 +1,5 @@
 import logging
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
@@ -35,7 +36,11 @@ class AuthSettings(BaseSettings):
         default=True,
         description="Secure cookie flag (HTTPS only)",
     )
-    JWT_REFRESH_TOKEN_SAME_SITE: str = Field(
+    JWT_REFRESH_TOKEN_SAME_SITE: Literal[
+        "lax",
+        "strict",
+        "none",
+    ] = Field(
         default="lax",
         description="SameSite cookie attribute: strict, lax, or none",
     )
@@ -54,6 +59,14 @@ class AuthSettings(BaseSettings):
         default="user",
         description="Default role for new users",
     )
+
+    @property
+    def JWT_ACCESS_TOKEN_EXPIRE_SECONDS(self) -> int:
+        return self.JWT_ACCESS_TOKEN_EXPIRE_MINUTES * 60
+
+    @property
+    def JWT_REFRESH_TOKEN_EXPIRE_SECONDS(self) -> int:
+        return self.JWT_REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
 
     def model_post_init(self, _) -> None:
         if not getattr(self, "is_production", False):
