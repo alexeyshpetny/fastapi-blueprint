@@ -40,28 +40,19 @@ fix:
 	uv run ruff check --fix .
 
 .PHONY: test
-test: test-services-up
+test:
 	uv run pytest
-
-.PHONY: test-services-up
-test-services-up:
-	@echo "Starting test services (postgres, redis)..."
-	@docker compose up -d postgres redis
-	@echo "Waiting for services to be ready..."
-	@timeout 30 bash -c 'until docker compose exec -T postgres pg_isready > /dev/null 2>&1; do sleep 1; done' || true
-	@timeout 10 bash -c 'until docker compose exec -T redis redis-cli ping > /dev/null 2>&1; do sleep 1; done' || true
-	@echo "Services are ready!"
 
 .PHONY: test-unit
 test-unit:
 	uv run pytest -m unit
 
 .PHONY: test-integration
-test-integration: test-services-up
+test-integration:
 	uv run pytest -m integration
 
 .PHONY: test-fast
-test-fast: test-services-up
+test-fast:
 	uv run pytest -x --ff
 
 .PHONY: ci
