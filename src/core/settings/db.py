@@ -24,7 +24,7 @@ class DatabaseSettings(BaseSettings):
         description="PostgreSQL database password",
     )
     DB_NAME: str = Field(
-        default="shpetny_fastapi_blueprint",
+        default="fastapi_blueprint",
         description="PostgreSQL database name",
     )
     DB_POOL_SIZE: int = Field(
