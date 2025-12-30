@@ -51,6 +51,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+      - name: Create .env file for docker-compose
+        run: |
+          cat > .env << EOF
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=test_db
+          REDIS_PASSWORD=
+          EOF
       - name: Start test services
         run: docker compose up -d postgres redis
       - name: Wait for services
