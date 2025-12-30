@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,7 +23,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: "uv"
       - run: uv sync --group dev --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .
@@ -35,7 +35,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: "uv"
       - run: uv sync --group dev --frozen
       - run: uv run mypy .
 
@@ -52,7 +51,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: "uv"
       - run: uv sync --group dev --frozen
       - run: uv run pytest
 
