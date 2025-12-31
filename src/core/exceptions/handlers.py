@@ -6,6 +6,15 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError as PydanticValidationError
 from starlette.responses import JSONResponse
 
+from src.auth.exceptions import (
+    InactiveUserError,
+    InsufficientPermissionsError,
+    InvalidCredentialsError,
+    InvalidTokenError,
+    TokenExpiredError,
+    UserAlreadyExistsError,
+    UserNotFoundError,
+)
 from src.core.exceptions.exceptions import ApplicationError
 from src.core.settings import settings
 
@@ -67,24 +76,45 @@ def add_exception_handlers(app: FastAPI) -> None:
             },
         )
 
+    # Security event exceptions (auth-related)
+    _SECURITY_EXCEPTIONS = (
+        InvalidCredentialsError,
+        InvalidTokenError,
+        TokenExpiredError,
+        InactiveUserError,
+        InsufficientPermissionsError,
+        UserNotFoundError,
+        UserAlreadyExistsError,
+    )
+
     @app.exception_handler(ApplicationError)
     async def application_error_handler(request: Request, exc: ApplicationError) -> JSONResponse:
         """Handle all custom application errors."""
         request_id = _get_request_id(request)
+        is_security_event = isinstance(exc, _SECURITY_EXCEPTIONS)
         log_level = logger.error if exc.status_code >= 500 else logger.warning
 
-        log_level(
-            "Application error occurred",
-            extra={
-                "request_id": request_id,
-                "path": request.url.path,
-                "method": request.method,
-                "status_code": exc.status_code,
-                "error": exc.message,
-                "details": exc.details,
-            },
-            exc_info=False,
-        )
+        log_extra = {
+            "request_id": request_id,
+            "path": request.url.path,
+            "method": request.method,
+            "status_code": exc.status_code,
+            "error": exc.message,
+            "details": exc.details,
+        }
+
+        if is_security_event:
+            logger.warning(
+                "Security event occurred",
+                extra={**log_extra, "security_event": True, "exception_type": type(exc).__name__},
+                exc_info=False,
+            )
+        else:
+            log_level(
+                "Application error occurred",
+                extra=log_extra,
+                exc_info=False,
+            )
 
         content: dict[str, Any] = {"error": exc.message, "request_id": request_id}
         if exc.details is not None:
