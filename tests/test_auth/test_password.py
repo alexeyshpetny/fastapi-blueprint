@@ -5,14 +5,14 @@ from src.core.settings import settings
 
 
 def test_validate_password_min_length() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Password must be at least"):
         validate_password("x" * (settings.PASSWORD_MIN_LENGTH - 1))
 
     validate_password("x" * settings.PASSWORD_MIN_LENGTH)
 
 
 def test_validate_password_max_72_bytes() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Password must be at most 72 bytes"):
         validate_password("x" * 73)
 
 
