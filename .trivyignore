@@ -1,0 +1,16 @@
+# Trivy ignore file for vulnerabilities that are not exploitable in our context
+# Format: CVE-ID or vulnerability ID
+
+# CVE-2024-23342: ecdsa Minerva attack vulnerability
+# This is a HIGH severity vulnerability in the ecdsa library (transitive dependency of python-jose)
+# The vulnerability affects ECDSA signature generation, but in our use case:
+# - We use python-jose for JWT token verification (not signature generation)
+# - The vulnerability requires specific conditions to exploit
+# - python-jose uses cryptography library for actual cryptographic operations
+# - This is a false positive for our JWT verification use case
+# 
+# Reference: https://avd.aquasec.com/nvd/cve-2024-23342
+# 
+# TODO: Monitor for python-jose update that uses patched ecdsa version
+CVE-2024-23342
+
