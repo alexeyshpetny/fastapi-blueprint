@@ -37,11 +37,11 @@ async def get_current_user(
     try:
         payload = decode_token(token)
         assert_token_type(payload, "access")
-    except JWTError:
+    except JWTError as e:
+        error_str = str(e).lower()
+        if "expired" in error_str or "exp" in error_str:
+            raise _unauthorized("Token expired") from None
         raise _unauthorized("Invalid authentication credentials") from None
-
-    if payload.is_expired():
-        raise _unauthorized("Token expired")
 
     try:
         user_id = int(payload.sub)

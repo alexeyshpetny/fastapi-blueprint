@@ -25,12 +25,32 @@ def _get_request_id(request: Request) -> str:
     return request.headers.get("X-Request-ID", "unknown")
 
 
+def _serialize_validation_errors(errors: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    result = []
+    for error in errors:
+        error_dict: dict[str, Any] = {
+            "loc": list(error.get("loc", [])),
+            "msg": str(error.get("msg", "")),
+            "type": str(error.get("type", "")),
+        }
+        if ctx := error.get("ctx"):
+            error_dict["ctx"] = (
+                {k: str(v) if isinstance(v, Exception) else v for k, v in ctx.items()}
+                if isinstance(ctx, dict)
+                else str(ctx)
+            )
+        result.append(error_dict)
+    return result
+
+
 def add_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(RequestValidationError)
     async def request_validation_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
         """Handle FastAPI request validation errors."""
         request_id = _get_request_id(request)
         errors = exc.errors()
+        errors_dict = [dict(error) for error in errors]
+        serialized_errors = _serialize_validation_errors(errors_dict)
 
         logger.warning(
             "Request validation failed",
@@ -38,15 +58,15 @@ def add_exception_handlers(app: FastAPI) -> None:
                 "request_id": request_id,
                 "path": request.url.path,
                 "method": request.method,
-                "errors": errors,
+                "errors": serialized_errors,
             },
         )
 
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content={
                 "error": "Validation failed",
-                "details": {"validation_errors": errors},
+                "details": {"validation_errors": serialized_errors},
                 "request_id": request_id,
             },
         )
@@ -56,6 +76,8 @@ def add_exception_handlers(app: FastAPI) -> None:
         """Handle Pydantic validation errors."""
         request_id = _get_request_id(request)
         errors = exc.errors()
+        errors_dict = [dict(error) for error in errors]
+        serialized_errors = _serialize_validation_errors(errors_dict)
 
         logger.warning(
             "Pydantic validation failed",
@@ -63,7 +85,7 @@ def add_exception_handlers(app: FastAPI) -> None:
                 "request_id": request_id,
                 "path": request.url.path,
                 "method": request.method,
-                "errors": errors,
+                "errors": serialized_errors,
             },
         )
 
@@ -71,7 +93,7 @@ def add_exception_handlers(app: FastAPI) -> None:
             status_code=status.HTTP_400_BAD_REQUEST,
             content={
                 "error": "Invalid input",
-                "details": {"validation_errors": errors},
+                "details": {"validation_errors": serialized_errors},
                 "request_id": request_id,
             },
         )
