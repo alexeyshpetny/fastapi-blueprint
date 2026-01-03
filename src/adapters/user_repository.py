@@ -20,11 +20,14 @@ class SqlAlchemyUserRepository(SqlAlchemyRepository[User]):
         )
 
     async def flush(self) -> None:
+        await super().flush()
+
+    async def safe_flush(self, user: User) -> None:
         try:
             await super().flush()
         except IntegrityError as e:
             logger.warning(
-                "Database integrity error during user flush",
+                "Database integrity error during user creation",
                 extra={"error": str(e)},
             )
             raise UserAlreadyExistsError() from None

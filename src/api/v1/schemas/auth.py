@@ -35,7 +35,14 @@ class RegisterRequest(BaseModel):
 
 
 class RefreshTokenRequest(BaseModel):
-    refresh_token: str | None = Field(default=None, description="Refresh token (optional if using cookie)")
+    refresh_token: str | None = Field(
+        default=None,
+        description=(
+            "Refresh token (fallback only). "
+            "Cookie-based tokens are preferred for security. "
+            "This field is only used if no cookie is provided."
+        ),
+    )
 
 
 class ChangePasswordRequest(BaseModel):

@@ -90,11 +90,19 @@ async def refresh(
     auth_service: AuthService = Depends(get_auth_service),
 ) -> LoginResponse:
     token = request.cookies.get(settings.JWT_REFRESH_TOKEN_COOKIE_NAME)
-    if not token and refresh_token_request:
-        token = refresh_token_request.refresh_token
 
     if not token:
-        raise InvalidTokenError("Refresh token not provided")
+        if refresh_token_request and refresh_token_request.refresh_token:
+            token = refresh_token_request.refresh_token
+            logger.warning(
+                "Refresh token provided in request body instead of cookie",
+                extra={
+                    "token_source": "body",
+                    "security_note": "Cookie-based tokens are more secure (HTTP-only)",
+                },
+            )
+        else:
+            raise InvalidTokenError("Refresh token not provided")
 
     access_token, new_refresh_token = await auth_service.refresh_access_token(token)
 
