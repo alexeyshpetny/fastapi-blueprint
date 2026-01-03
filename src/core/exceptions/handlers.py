@@ -1,4 +1,5 @@
 import logging
+import uuid
 from typing import Any
 
 from fastapi import FastAPI, Request, status
@@ -7,13 +8,20 @@ from pydantic import ValidationError as PydanticValidationError
 from starlette.responses import JSONResponse
 
 from src.core.exceptions.exceptions import ApplicationError
+from src.core.logger import request_id_context
 from src.core.settings import settings
 
 logger = logging.getLogger(__name__)
 
 
 def _get_request_id(request: Request) -> str:
-    return request.headers.get("X-Request-ID", "unknown")
+    if request_id := request_id_context.get():
+        return request_id
+
+    if request_id := request.headers.get("X-Request-ID"):
+        return request_id
+
+    return str(uuid.uuid4())
 
 
 def _serialize_validation_errors(errors: list[dict[str, Any]]) -> list[dict[str, Any]]:

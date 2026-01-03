@@ -16,3 +16,9 @@ class SqlAlchemyUserRepository(SqlAlchemyRepository[User]):
             User.email == email,
             options=[selectinload(User.roles)],
         )
+
+    async def get_by_username(self, username: str) -> User | None:
+        return await self.get_one(
+            User.username == username,
+            options=[selectinload(User.roles)],
+        )
