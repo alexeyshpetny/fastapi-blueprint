@@ -44,13 +44,10 @@ def _serialize_validation_errors(errors: list[dict[str, Any]]) -> list[dict[str,
 
 def add_exception_handlers(app: FastAPI) -> None:
     from src.auth.exceptions import (
-        InactiveUserError,
-        InsufficientPermissionsError,
         InvalidCredentialsError,
         InvalidTokenError,
         TokenExpiredError,
         UserAlreadyExistsError,
-        UserNotFoundError,
     )
 
     @app.exception_handler(RequestValidationError)
@@ -112,9 +109,6 @@ def add_exception_handlers(app: FastAPI) -> None:
         InvalidCredentialsError,
         InvalidTokenError,
         TokenExpiredError,
-        InactiveUserError,
-        InsufficientPermissionsError,
-        UserNotFoundError,
         UserAlreadyExistsError,
     )
 
