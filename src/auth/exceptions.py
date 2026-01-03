@@ -1,4 +1,4 @@
-from src.core.exceptions.exceptions import ConflictError, ForbiddenError, NotFoundError, UnauthorizedError
+from src.core.exceptions.exceptions import ConflictError, UnauthorizedError
 
 
 class InvalidCredentialsError(UnauthorizedError):
@@ -17,24 +17,6 @@ class TokenExpiredError(UnauthorizedError):
     """401 Unauthorized - Expired JWT."""
 
     default_message: str = "Token expired"
-
-
-class InactiveUserError(ForbiddenError):
-    """403 Forbidden - User account is disabled."""
-
-    default_message: str = "User is inactive"
-
-
-class InsufficientPermissionsError(ForbiddenError):
-    """403 Forbidden - Missing required role."""
-
-    default_message: str = "Insufficient permissions"
-
-
-class UserNotFoundError(NotFoundError):
-    """404 Not Found - User doesn't exist."""
-
-    default_message: str = "User not found"
 
 
 class UserAlreadyExistsError(ConflictError):
