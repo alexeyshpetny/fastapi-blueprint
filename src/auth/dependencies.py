@@ -40,13 +40,13 @@ async def get_current_user(
     except JWTError as e:
         error_str = str(e).lower()
         if "expired" in error_str or "exp" in error_str:
-            raise _unauthorized("Token expired") from None
-        raise _unauthorized("Invalid authentication credentials") from None
+            raise _unauthorized("Token expired") from e
+        raise _unauthorized("Invalid authentication credentials") from e
 
     try:
         user_id = int(payload.sub)
-    except (ValueError, TypeError):
-        raise _unauthorized("Invalid token payload") from None
+    except (ValueError, TypeError) as e:
+        raise _unauthorized("Invalid token payload") from e
 
     user = await auth_service.get_user_by_id(user_id)
     if user is None:

@@ -14,7 +14,7 @@ from src.api.v1.schemas.auth import (
     UserResponse,
 )
 from src.auth.dependencies import get_current_user
-from src.core.exceptions.exceptions import ConflictError
+from src.auth.exceptions import InvalidCredentialsError, InvalidTokenError, UserAlreadyExistsError
 from src.core.settings import settings
 from src.dependencies.services import get_auth_service
 from src.models.user import User
@@ -40,9 +40,9 @@ async def register(
         )
         user = await auth_service.get_user_by_email(request.email)
         return RegisterResponse(user=UserResponse.model_validate(user))
-    except ConflictError:
+    except UserAlreadyExistsError:
         logger.warning("Registration attempt with existing email", extra={"email": request.email})
-        raise ConflictError("Registration failed") from None
+        raise
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -72,7 +72,7 @@ async def login(
             expires_in=settings.JWT_ACCESS_TOKEN_EXPIRE_SECONDS,
             user=UserResponse.model_validate(user),
         )
-    except ConflictError:
+    except InvalidCredentialsError:
         logger.warning("Failed login attempt", extra={"email": form_data.username})
         raise
 
@@ -89,9 +89,10 @@ async def refresh(
         token = refresh_token_request.refresh_token
 
     if not token:
-        raise ConflictError("Refresh token not provided")
+        raise InvalidTokenError("Refresh token not provided")
 
     access_token = await auth_service.refresh_access_token(token)
+
     return TokenResponse(
         access_token=access_token,
         token_type="bearer",

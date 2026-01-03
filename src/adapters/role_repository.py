@@ -23,10 +23,10 @@ class SqlAlchemyRoleRepository(SqlAlchemyRepository[Role]):
             async with self._session.begin_nested():
                 await self._session.flush()
             return role
-        except IntegrityError:
+        except IntegrityError as e:
             existing = await self.get_by_name(name)
             if existing is None:
-                raise ServiceUnavailableError("Role creation failed") from None
+                raise ServiceUnavailableError("Role creation failed") from e
             return existing
         except SQLAlchemyError as e:
             raise ServiceUnavailableError("Database error during role creation") from e

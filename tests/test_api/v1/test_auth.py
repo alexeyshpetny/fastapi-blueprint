@@ -41,7 +41,7 @@ class TestRegister:
 
         assert response.status_code == status.HTTP_409_CONFLICT
         data = response.json()
-        assert "Registration failed" in data.get("error", data.get("detail", ""))
+        assert "Email is already registered" in data.get("error", data.get("detail", ""))
 
     async def test_register_invalid_email(self, client: AsyncClient):
         response = await client.post(
@@ -112,7 +112,7 @@ class TestLogin:
             },
         )
 
-        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         data = response.json()
         assert "Invalid email or password" in data.get("error", data.get("detail", ""))
 
@@ -124,7 +124,7 @@ class TestLogin:
                 "password": "SomePassword123!",
             },
         )
-        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     async def test_login_inactive_user(self, client: AsyncClient, user_factory):
         await user_factory(email="inactive@example.com", password="Password123!", is_active=False)
@@ -136,7 +136,7 @@ class TestLogin:
                 "password": "Password123!",
             },
         )
-        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 @pytest.mark.integration
@@ -191,7 +191,7 @@ class TestRefresh:
 
     async def test_refresh_no_token(self, client: AsyncClient):
         response = await client.post("/api/v1/auth/refresh")
-        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
         data = response.json()
         assert "Refresh token not provided" in data.get("error", data.get("detail", ""))
 
@@ -200,7 +200,7 @@ class TestRefresh:
             "/api/v1/auth/refresh",
             json={"refresh_token": "invalid_token"},
         )
-        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 @pytest.mark.integration
@@ -261,7 +261,7 @@ class TestMe:
                 "password": "Password123!",
             },
         )
-        assert login_response.status_code == status.HTTP_409_CONFLICT
+        assert login_response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 @pytest.mark.integration
@@ -297,7 +297,7 @@ class TestChangePassword:
                 "password": "OldPassword123!",
             },
         )
-        assert old_login_response.status_code == status.HTTP_409_CONFLICT
+        assert old_login_response.status_code == status.HTTP_401_UNAUTHORIZED
 
         new_login_response = await client.post(
             "/api/v1/auth/login",
@@ -329,7 +329,7 @@ class TestChangePassword:
             },
         )
 
-        assert change_response.status_code == status.HTTP_409_CONFLICT
+        assert change_response.status_code == status.HTTP_401_UNAUTHORIZED
         data = change_response.json()
         assert "Invalid current password" in data.get("error", data.get("detail", ""))
 

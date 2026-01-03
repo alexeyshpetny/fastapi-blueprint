@@ -4,9 +4,14 @@ from typing import Final
 
 from src.adapters.role_repository import SqlAlchemyRoleRepository
 from src.adapters.user_repository import SqlAlchemyUserRepository
+from src.auth.exceptions import (
+    InvalidCredentialsError,
+    InvalidTokenError,
+    TokenExpiredError,
+    UserAlreadyExistsError,
+)
 from src.auth.jwt import assert_token_type, create_access_token, create_refresh_token, decode_token
 from src.auth.password import get_password_hash, verify_password
-from src.core.exceptions.exceptions import ConflictError
 from src.core.settings import settings
 from src.models.user import User
 
@@ -38,7 +43,7 @@ class AuthService:
     async def create_user(self, email: str, password: str, username: str | None) -> User:
         existing = await self._users.get_by_email(email)
         if existing is not None:
-            raise ConflictError("Email is already registered")
+            raise UserAlreadyExistsError()
 
         user = User(
             email=email,
@@ -67,7 +72,7 @@ class AuthService:
     async def login_user(self, email: str, password: str) -> tuple[str, str, User]:
         user = await self.authenticate_user(email, password)
         if user is None:
-            raise ConflictError("Invalid email or password")
+            raise InvalidCredentialsError()
 
         role_names = [role.name for role in user.roles]
         access_token = create_access_token(sub=str(user.id), email=user.email, roles=role_names)
@@ -80,19 +85,19 @@ class AuthService:
             assert_token_type(payload, "refresh")
         except Exception as e:
             logger.warning("Invalid refresh token", extra={"error": str(e)})
-            raise ConflictError("Invalid refresh token") from None
+            raise InvalidTokenError() from e
 
         if payload.is_expired():
-            raise ConflictError("Refresh token expired")
+            raise TokenExpiredError()
 
         try:
             user_id = int(payload.sub)
-        except (ValueError, TypeError):
-            raise ConflictError("Invalid token payload") from None
+        except (ValueError, TypeError) as e:
+            raise InvalidTokenError() from e
 
         user = await self.get_user_by_id(user_id)
         if user is None or not user.is_active:
-            raise ConflictError("User not found or inactive") from None
+            raise InvalidTokenError()
 
         role_names = [role.name for role in user.roles]
         return create_access_token(sub=str(user_id), email=user.email, roles=role_names)
@@ -100,7 +105,7 @@ class AuthService:
     async def change_user_password(self, user: User, current_password: str, new_password: str) -> None:
         if not verify_password(current_password, user.hashed_password):
             logger.warning("Failed password change attempt", extra={"user_id": user.id})
-            raise ConflictError("Invalid current password") from None
+            raise InvalidCredentialsError("Invalid current password")
 
         user.hashed_password = get_password_hash(new_password)
         logger.info("Password changed successfully", extra={"user_id": user.id})
