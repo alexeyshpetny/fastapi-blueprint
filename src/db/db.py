@@ -20,4 +20,11 @@ async_session_maker = async_sessionmaker[AsyncSession](
 
 async def get_session() -> AsyncIterator[AsyncSession]:
     async with async_session_maker() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            raise e
+        finally:
+            await session.close()

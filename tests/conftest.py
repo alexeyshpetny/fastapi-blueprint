@@ -46,7 +46,14 @@ async def session(
     async_session_maker: async_sessionmaker[AsyncSession],
 ) -> AsyncIterator[AsyncSession]:
     async with async_session_maker() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            raise e
+        finally:
+            await session.close()
 
 
 @pytest.fixture(autouse=True)
@@ -87,7 +94,10 @@ async def user_factory(
         is_active: bool = True,
         roles: list[str] | None = None,
     ) -> User:
-        user = await auth_service.create_user(email=email, password=password, username=username)
+        await auth_service.create_user(email=email, password=password, username=username)
+        user = await auth_service.get_user_by_email(email)
+        if user is None:
+            raise ValueError(f"User not found: {email}")
 
         if not is_active:
             user.is_active = False

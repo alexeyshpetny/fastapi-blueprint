@@ -6,15 +6,6 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError as PydanticValidationError
 from starlette.responses import JSONResponse
 
-from src.auth.exceptions import (
-    InactiveUserError,
-    InsufficientPermissionsError,
-    InvalidCredentialsError,
-    InvalidTokenError,
-    TokenExpiredError,
-    UserAlreadyExistsError,
-    UserNotFoundError,
-)
 from src.core.exceptions.exceptions import ApplicationError
 from src.core.settings import settings
 
@@ -44,6 +35,16 @@ def _serialize_validation_errors(errors: list[dict[str, Any]]) -> list[dict[str,
 
 
 def add_exception_handlers(app: FastAPI) -> None:
+    from src.auth.exceptions import (
+        InactiveUserError,
+        InsufficientPermissionsError,
+        InvalidCredentialsError,
+        InvalidTokenError,
+        TokenExpiredError,
+        UserAlreadyExistsError,
+        UserNotFoundError,
+    )
+
     @app.exception_handler(RequestValidationError)
     async def request_validation_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
         """Handle FastAPI request validation errors."""

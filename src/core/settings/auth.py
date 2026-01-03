@@ -33,8 +33,8 @@ class AuthSettings(BaseSettings):
         description="HTTP-only cookie flag (XSS protection)",
     )
     JWT_REFRESH_TOKEN_SECURE: bool = Field(
-        default=True,
-        description="Secure cookie flag (HTTPS only)",
+        default=False,
+        description="Secure cookie flag (HTTPS only). Set to False for local development (HTTP).",
     )
     JWT_REFRESH_TOKEN_SAME_SITE: Literal[
         "lax",

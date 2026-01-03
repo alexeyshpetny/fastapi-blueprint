@@ -16,6 +16,7 @@ class TokenPayload(BaseModel):
 
     email: str | None = None
     roles: list[str] = Field(default_factory=list)
+    jti: str | None = Field(default=None, description="JWT ID - unique token identifier")
 
     @field_validator("roles")
     @classmethod

@@ -22,6 +22,9 @@ class SqlAlchemyRepository[TModel]:
     def add(self, obj: TModel) -> None:
         self._session.add(obj)
 
+    async def flush(self) -> None:
+        await self._session.flush()
+
     async def get_by_id(
         self,
         obj_id: int,

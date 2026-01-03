@@ -20,7 +20,7 @@ def create_access_token(*, sub: str, email: str | None = None, roles: list[str] 
         exp=_to_unix_seconds(expires_at),
         email=email,
         roles=roles or [],
-    ).model_dump()
+    ).model_dump(exclude_none=True)
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
@@ -32,12 +32,18 @@ def create_refresh_token(*, sub: str) -> str:
         type="refresh",
         iat=_to_unix_seconds(issued_at),
         exp=_to_unix_seconds(expires_at),
-    ).model_dump()
+    ).model_dump(exclude_none=True)
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
-def decode_token(token: str) -> TokenPayload:
-    decoded = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+def decode_token(token: str, *, verify_exp: bool = True) -> TokenPayload:
+    options = {} if verify_exp else {"verify_exp": False}
+    decoded = jwt.decode(
+        token,
+        settings.JWT_SECRET_KEY,
+        algorithms=[settings.JWT_ALGORITHM],
+        options=options,
+    )
     return TokenPayload.model_validate(decoded)
 
 

@@ -3,7 +3,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.v1.schemas.auth import (
     ChangePasswordRequest,
@@ -17,7 +16,6 @@ from src.api.v1.schemas.auth import (
 from src.auth.dependencies import get_current_user
 from src.core.exceptions.exceptions import ConflictError
 from src.core.settings import settings
-from src.db.db import get_session
 from src.dependencies.services import get_auth_service
 from src.models.user import User
 from src.rate_limit import rate_limit
@@ -33,15 +31,14 @@ router = APIRouter()
 async def register(
     request: RegisterRequest,
     auth_service: AuthService = Depends(get_auth_service),
-    session: AsyncSession = Depends(get_session),
 ) -> RegisterResponse:
     try:
-        user = await auth_service.create_user(
+        await auth_service.create_user(
             email=request.email,
             password=request.password,
             username=request.username,
         )
-        await session.flush()
+        user = await auth_service.get_user_by_email(request.email)
         return RegisterResponse(user=UserResponse.model_validate(user))
     except ConflictError:
         logger.warning("Registration attempt with existing email", extra={"email": request.email})
@@ -95,7 +92,6 @@ async def refresh(
         raise ConflictError("Refresh token not provided")
 
     access_token = await auth_service.refresh_access_token(token)
-
     return TokenResponse(
         access_token=access_token,
         token_type="bearer",

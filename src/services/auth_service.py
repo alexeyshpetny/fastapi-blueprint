@@ -55,10 +55,14 @@ class AuthService:
         user.roles.append(default_role)
 
         self._users.add(user)
+        await self._users.flush()
         return user
 
     async def get_user_by_id(self, user_id: int) -> User | None:
         return await self._users.get_by_id(user_id)
+
+    async def get_user_by_email(self, email: str) -> User | None:
+        return await self._users.get_by_email(email)
 
     async def login_user(self, email: str, password: str) -> tuple[str, str, User]:
         user = await self.authenticate_user(email, password)
@@ -68,7 +72,6 @@ class AuthService:
         role_names = [role.name for role in user.roles]
         access_token = create_access_token(sub=str(user.id), email=user.email, roles=role_names)
         refresh_token = create_refresh_token(sub=str(user.id))
-
         return access_token, refresh_token, user
 
     async def refresh_access_token(self, refresh_token: str) -> str:
