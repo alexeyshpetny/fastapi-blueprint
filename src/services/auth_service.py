@@ -61,7 +61,6 @@ class AuthService:
         user.roles.append(default_role)
 
         self._users.add(user)
-        await self._users.safe_flush(user)
         return user
 
     async def get_user_by_id(self, user_id: int) -> User | None:

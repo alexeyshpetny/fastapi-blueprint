@@ -48,12 +48,8 @@ async def session(
     async with async_session_maker() as session:
         try:
             yield session
-            await session.commit()
-        except Exception as e:
-            await session.rollback()
-            raise e
         finally:
-            await session.close()
+            await session.rollback()
 
 
 @pytest.fixture(autouse=True)
@@ -120,7 +116,12 @@ async def app(session: AsyncSession) -> FastAPI:
     app = create_app()
 
     async def override_get_session() -> AsyncIterator[AsyncSession]:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
 
     app.dependency_overrides[get_session] = override_get_session
     return app
