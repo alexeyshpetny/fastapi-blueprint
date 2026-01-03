@@ -27,5 +27,3 @@ def test_password_hash_and_verify_roundtrip() -> None:
 
 def test_verify_password_invalid_hash_returns_false() -> None:
     assert verify_password("any", "not-a-valid-hash") is False
-
-
