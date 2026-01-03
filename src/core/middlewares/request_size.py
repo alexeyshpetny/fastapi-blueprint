@@ -45,8 +45,10 @@ class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
             status_code=status.HTTP_413_CONTENT_TOO_LARGE,
             content={
                 "error": "Request entity too large",
-                "message": f"Request body size ({size} bytes) \
-                    exceeds maximum allowed size ({self.max_size} bytes)",
+                "message": (
+                    f"Request body size ({size} bytes) exceeds maximum allowed size ({self.max_size} bytes). "
+                    "Please reduce the size of the request body."
+                ),
                 "max_size": self.max_size,
             },
         )
