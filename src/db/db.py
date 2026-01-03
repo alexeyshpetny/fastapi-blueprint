@@ -1,8 +1,11 @@
+import logging
 from collections.abc import AsyncIterator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from src.core.settings import settings
+
+logger = logging.getLogger(__name__)
 
 engine = create_async_engine(
     settings.db_url,
@@ -23,8 +26,6 @@ async def get_session() -> AsyncIterator[AsyncSession]:
         try:
             yield session
             await session.commit()
-        except Exception as e:
+        except Exception:
             await session.rollback()
-            raise e
-        finally:
-            await session.close()
+            raise
