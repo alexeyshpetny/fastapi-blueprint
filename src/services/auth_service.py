@@ -30,8 +30,12 @@ class AuthService:
         self._users = users
         self._roles = roles
 
-    async def authenticate_user(self, email: str, password: str) -> User | None:
-        user = await self._users.get_by_email(email)
+    async def authenticate_user(self, identifier: str, password: str) -> User | None:
+        user = await self._users.get_by_email(identifier)
+
+        if user is None:
+            user = await self._users.get_by_username(identifier)
+
         if user is None or not user.is_active:
             return None
 
@@ -42,8 +46,10 @@ class AuthService:
         return user
 
     async def create_user(self, email: str, password: str, username: str | None) -> User:
-        existing = await self._users.get_by_email(email)
-        if existing is not None:
+        if await self._users.get_by_email(email) is not None:
+            raise UserAlreadyExistsError()
+
+        if username and await self._users.get_by_username(username) is not None:
             raise UserAlreadyExistsError()
 
         user = User(
@@ -69,8 +75,8 @@ class AuthService:
     async def get_user_by_email(self, email: str) -> User | None:
         return await self._users.get_by_email(email)
 
-    async def login_user(self, email: str, password: str) -> tuple[str, str, User]:
-        user = await self.authenticate_user(email, password)
+    async def login_user(self, identifier: str, password: str) -> tuple[str, str, User]:
+        user = await self.authenticate_user(identifier, password)
         if user is None:
             raise InvalidCredentialsError()
 
