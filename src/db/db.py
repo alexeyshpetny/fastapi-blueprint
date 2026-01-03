@@ -1,7 +1,6 @@
 from collections.abc import AsyncIterator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
 
 from src.core.settings import settings
 
@@ -19,10 +18,13 @@ async_session_maker = async_sessionmaker[AsyncSession](
 )
 
 
-class Base(DeclarativeBase):
-    """Base class for all db models."""
-
-
 async def get_session() -> AsyncIterator[AsyncSession]:
     async with async_session_maker() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            raise e
+        finally:
+            await session.close()
