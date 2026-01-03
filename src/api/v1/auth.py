@@ -16,6 +16,7 @@ from src.auth.dependencies import get_current_user
 from src.auth.exceptions import InvalidCredentialsError, InvalidTokenError, UserAlreadyExistsError
 from src.auth.jwt import decode_token
 from src.auth.token_blacklist import blacklist_token
+from src.core.exceptions.exceptions import ValidationError
 from src.core.settings import settings
 from src.dependencies.services import get_auth_service
 from src.models.user import User
@@ -43,7 +44,9 @@ async def register(
         return RegisterResponse(user=UserResponse.model_validate(user))
     except UserAlreadyExistsError:
         logger.warning("Registration attempt with existing email", extra={"email": request.email})
-        raise
+        raise ValidationError(
+            message="Unable to complete registration. Please check your information and try again."
+        ) from None
 
 
 @router.post("/login", response_model=LoginResponse)

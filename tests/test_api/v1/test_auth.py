@@ -39,9 +39,11 @@ class TestRegister:
             },
         )
 
-        assert response.status_code == status.HTTP_409_CONFLICT
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
         data = response.json()
-        assert "Email is already registered" in data.get("error", data.get("detail", ""))
+        error_message = data.get("error", data.get("detail", ""))
+        assert "Unable to complete registration" in error_message
+        assert "Email is already registered" not in error_message
 
     async def test_register_invalid_email(self, client: AsyncClient):
         response = await client.post(

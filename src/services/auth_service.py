@@ -108,7 +108,6 @@ class AuthService:
             expires_at = payload.expires_at()
             await blacklist_token(payload.jti, expires_at)
 
-        # Create new tokens
         role_names = [role.name for role in user.roles]
         new_access_token = create_access_token(sub=str(user_id), email=user.email, roles=role_names)
         new_refresh_token = create_refresh_token(sub=str(user_id))
