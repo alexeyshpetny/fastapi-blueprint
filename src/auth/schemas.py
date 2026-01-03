@@ -26,3 +26,6 @@ class TokenPayload(BaseModel):
     def is_expired(self, *, now: datetime | None = None) -> bool:
         now_ts = int((now or datetime.now(UTC)).timestamp())
         return now_ts >= self.exp
+
+    def expires_at(self) -> datetime:
+        return datetime.fromtimestamp(self.exp, tz=UTC)

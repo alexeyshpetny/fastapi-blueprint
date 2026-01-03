@@ -12,6 +12,7 @@ from src.auth.exceptions import (
 )
 from src.auth.jwt import assert_token_type, create_access_token, create_refresh_token, decode_token
 from src.auth.password import get_password_hash, verify_password
+from src.auth.token_blacklist import blacklist_token, is_token_blacklisted
 from src.core.settings import settings
 from src.models.user import User
 
@@ -79,7 +80,7 @@ class AuthService:
         refresh_token = create_refresh_token(sub=str(user.id))
         return access_token, refresh_token, user
 
-    async def refresh_access_token(self, refresh_token: str) -> str:
+    async def refresh_access_token(self, refresh_token: str) -> tuple[str, str]:
         try:
             payload = decode_token(refresh_token)
             assert_token_type(payload, "refresh")
@@ -90,6 +91,10 @@ class AuthService:
         if payload.is_expired():
             raise TokenExpiredError()
 
+        if payload.jti and await is_token_blacklisted(payload.jti):
+            logger.warning("Attempted use of blacklisted refresh token", extra={"jti": payload.jti})
+            raise InvalidTokenError("Token has been revoked")
+
         try:
             user_id = int(payload.sub)
         except (ValueError, TypeError) as e:
@@ -99,8 +104,17 @@ class AuthService:
         if user is None or not user.is_active:
             raise InvalidTokenError()
 
+        if payload.jti:
+            expires_at = payload.expires_at()
+            await blacklist_token(payload.jti, expires_at)
+
+        # Create new tokens
         role_names = [role.name for role in user.roles]
-        return create_access_token(sub=str(user_id), email=user.email, roles=role_names)
+        new_access_token = create_access_token(sub=str(user_id), email=user.email, roles=role_names)
+        new_refresh_token = create_refresh_token(sub=str(user_id))
+
+        logger.info("Tokens refreshed and rotated", extra={"user_id": user_id})
+        return new_access_token, new_refresh_token
 
     async def change_user_password(self, user: User, current_password: str, new_password: str) -> None:
         if not verify_password(current_password, user.hashed_password):

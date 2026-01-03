@@ -1,3 +1,4 @@
+import secrets
 from datetime import UTC, datetime, timedelta
 
 from jose import JWTError, jwt
@@ -10,7 +11,13 @@ def _to_unix_seconds(dt: datetime) -> int:
     return int(dt.timestamp())
 
 
-def create_access_token(*, sub: str, email: str | None = None, roles: list[str] | None = None) -> str:
+def _generate_jti() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def create_access_token(
+    *, sub: str, email: str | None = None, roles: list[str] | None = None, jti: str | None = None
+) -> str:
     issued_at = datetime.now(UTC)
     expires_at = issued_at + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     payload = TokenPayload(
@@ -20,11 +27,12 @@ def create_access_token(*, sub: str, email: str | None = None, roles: list[str] 
         exp=_to_unix_seconds(expires_at),
         email=email,
         roles=roles or [],
+        jti=jti or _generate_jti(),
     ).model_dump(exclude_none=True)
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
-def create_refresh_token(*, sub: str) -> str:
+def create_refresh_token(*, sub: str, jti: str | None = None) -> str:
     issued_at = datetime.now(UTC)
     expires_at = issued_at + timedelta(days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS)
     payload = TokenPayload(
@@ -32,6 +40,7 @@ def create_refresh_token(*, sub: str) -> str:
         type="refresh",
         iat=_to_unix_seconds(issued_at),
         exp=_to_unix_seconds(expires_at),
+        jti=jti or _generate_jti(),
     ).model_dump(exclude_none=True)
     return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 

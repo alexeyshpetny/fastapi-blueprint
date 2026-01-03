@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 
 from src.auth.jwt import assert_token_type, decode_token
+from src.auth.token_blacklist import is_token_blacklisted
 from src.core.settings import settings
 from src.dependencies.services import get_auth_service
 from src.models.user import User
@@ -42,6 +43,9 @@ async def get_current_user(
         if "expired" in error_str or "exp" in error_str:
             raise _unauthorized("Token expired") from e
         raise _unauthorized("Invalid authentication credentials") from e
+
+    if payload.jti and await is_token_blacklisted(payload.jti):
+        raise _unauthorized("Token has been revoked")
 
     try:
         user_id = int(payload.sub)

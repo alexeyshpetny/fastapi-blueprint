@@ -10,11 +10,12 @@ from src.api.v1.schemas.auth import (
     RefreshTokenRequest,
     RegisterRequest,
     RegisterResponse,
-    TokenResponse,
     UserResponse,
 )
 from src.auth.dependencies import get_current_user
 from src.auth.exceptions import InvalidCredentialsError, InvalidTokenError, UserAlreadyExistsError
+from src.auth.jwt import decode_token
+from src.auth.token_blacklist import blacklist_token
 from src.core.settings import settings
 from src.dependencies.services import get_auth_service
 from src.models.user import User
@@ -77,13 +78,14 @@ async def login(
         raise
 
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post("/refresh", response_model=LoginResponse)
 @rate_limit("10/minute")
 async def refresh(
     request: Request,
+    response: Response,
     refresh_token_request: RefreshTokenRequest | None = None,
     auth_service: AuthService = Depends(get_auth_service),
-) -> TokenResponse:
+) -> LoginResponse:
     token = request.cookies.get(settings.JWT_REFRESH_TOKEN_COOKIE_NAME)
     if not token and refresh_token_request:
         token = refresh_token_request.refresh_token
@@ -91,18 +93,44 @@ async def refresh(
     if not token:
         raise InvalidTokenError("Refresh token not provided")
 
-    access_token = await auth_service.refresh_access_token(token)
+    access_token, new_refresh_token = await auth_service.refresh_access_token(token)
 
-    return TokenResponse(
+    response.set_cookie(
+        key=settings.JWT_REFRESH_TOKEN_COOKIE_NAME,
+        value=new_refresh_token,
+        httponly=settings.JWT_REFRESH_TOKEN_HTTP_ONLY,
+        secure=settings.JWT_REFRESH_TOKEN_SECURE,
+        samesite=settings.JWT_REFRESH_TOKEN_SAME_SITE,
+        max_age=settings.JWT_REFRESH_TOKEN_EXPIRE_SECONDS,
+    )
+
+    payload = decode_token(access_token)
+    user_id = int(payload.sub)
+    user = await auth_service.get_user_by_id(user_id)
+    if user is None:
+        raise InvalidTokenError("User not found")
+
+    return LoginResponse(
         access_token=access_token,
         token_type="bearer",
         expires_in=settings.JWT_ACCESS_TOKEN_EXPIRE_SECONDS,
+        user=UserResponse.model_validate(user),
     )
 
 
 @router.post("/logout")
 @rate_limit("20/minute")
-async def logout(response: Response) -> dict[str, str]:
+async def logout(request: Request, response: Response) -> dict[str, str]:
+    if refresh_token := request.cookies.get(settings.JWT_REFRESH_TOKEN_COOKIE_NAME):
+        try:
+            payload = decode_token(refresh_token, verify_exp=False)
+            if payload.jti:
+                expires_at = payload.expires_at()
+                await blacklist_token(payload.jti, expires_at)
+                logger.info("Refresh token blacklisted on logout", extra={"jti": payload.jti})
+        except Exception as e:
+            logger.warning("Failed to blacklist token on logout", extra={"error": str(e)})
+
     response.delete_cookie(
         key=settings.JWT_REFRESH_TOKEN_COOKIE_NAME,
         httponly=settings.JWT_REFRESH_TOKEN_HTTP_ONLY,
