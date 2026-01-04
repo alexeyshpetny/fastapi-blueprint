@@ -46,6 +46,7 @@ router = APIRouter()
 @rate_limit("5/minute")
 async def register(
     request: Request,
+    response: Response,
     data: RegisterRequest,
     auth_service: AuthService = Depends(get_auth_service),
 ) -> RegisterResponse:
