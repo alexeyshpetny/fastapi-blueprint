@@ -9,7 +9,7 @@ async def test_security_headers_core(client: AsyncClient) -> None:
     if not settings.SECURITY_HEADERS_ENABLED:
         pytest.skip("Security headers are disabled")
 
-    response = await client.get("/api/v1/health/live")
+    response = await client.get("/api/v1/health/liveness")
 
     assert response.headers["X-Content-Type-Options"] == settings.SECURITY_X_CONTENT_TYPE_OPTIONS
     assert response.headers["X-Frame-Options"] == settings.SECURITY_X_FRAME_OPTIONS
@@ -22,7 +22,7 @@ async def test_security_headers_conditional(client: AsyncClient) -> None:
     if not settings.SECURITY_HEADERS_ENABLED:
         pytest.skip("Security headers are disabled")
 
-    response = await client.get("/api/v1/health/live")
+    response = await client.get("/api/v1/health/liveness")
 
     if settings.SECURITY_STRICT_TRANSPORT_SECURITY:
         assert response.headers["Strict-Transport-Security"] == settings.SECURITY_STRICT_TRANSPORT_SECURITY

@@ -7,7 +7,7 @@ from src.core.settings import settings
 
 @pytest.mark.unit
 async def test_check_liveness(client: AsyncClient) -> None:
-    response = await client.get("/api/v1/health/live")
+    response = await client.get("/api/v1/health/liveness")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["status"] == "alive"
@@ -17,7 +17,7 @@ async def test_check_liveness(client: AsyncClient) -> None:
 
 @pytest.mark.integration
 async def test_check_readiness_success(client: AsyncClient) -> None:
-    response = await client.get("/api/v1/health/ready")
+    response = await client.get("/api/v1/health/readiness")
     assert response.status_code == status.HTTP_200_OK
     data = response.json()
     assert data["status"] == "ready"

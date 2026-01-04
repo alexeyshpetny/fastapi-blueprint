@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.get(
-    "/health/live",
+    "/health/liveness",
     summary="Liveness check",
     description=(
         "Liveness check endpoint. Returns 200 if the application process is running. "
@@ -29,7 +29,7 @@ async def check_liveness(
 
 
 @router.get(
-    "/health/ready",
+    "/health/readiness",
     summary="Readiness check",
     description=(
         "Readiness check endpoint. Returns 200 if the service is ready to accept traffic. "
