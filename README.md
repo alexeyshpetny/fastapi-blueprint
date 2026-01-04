@@ -113,7 +113,7 @@ fastapi-blueprint/
 - **Python 3.13+**
 - **PostgreSQL 16+**
 - **Redis 7+**
-- **Docker & Docker Compose** (optional, for containerized setup)
+- **Docker & Docker Compose**
 - **uv** (recommended) or pip for dependency management
 
 ## 🚀 Quick Start
@@ -184,21 +184,44 @@ See [Configuration](#-configuration) for all available options.
 
 ### 4. Start Services
 
-Using Docker Compose (for local development):
+**Recommended: Use Make commands** (simplest way to run the project):
+
 ```bash
+# Build and start all services (PostgreSQL, Redis, API)
 make start
-# Or manually:
-docker compose up -d
+
+# View logs
+make logs
+
+# Stop services
+make down
+
+# Rebuild images
+make build
 ```
 
-Or manually:
-```bash
-# Start PostgreSQL and Redis
-docker compose up -d postgres redis
+**Alternative: Manual Docker Compose commands**
 
-# Run migrations
+```bash
+# Start all services
+docker compose up -d
+
+# View logs
+docker logs -f fastapi-blueprint-api
+
+# Stop services
+docker compose down
+
+# Build images
+docker compose build
+```
+
+**Alternative: Run without Docker**
+
+```bash
+# Start PostgreSQL and Redis (requires local installation)
+# Then run migrations
 make migrate
-# Or: docker exec fastapi-blueprint-api bash -c 'cd src && alembic upgrade head'
 
 # Start the application
 uvicorn src.main:application --reload --host 0.0.0.0 --port 8080
@@ -496,7 +519,7 @@ Integration tests only:
 make test-integration
 ```
 
-Fast tests (stops on first failure):
+Fast tests (stops on first failure, failed tests first):
 ```bash
 make test-fast
 ```
@@ -527,26 +550,30 @@ The project includes comprehensive test coverage for:
 
 **Note:** Docker Compose is intended for **local development only**. For production deployments, use a container orchestration platform (Kubernetes, Docker Swarm, ECS, etc.).
 
-Start all services:
+**Recommended: Use Make commands**
+
 ```bash
-docker compose up -d
+make start    # Build and start all services
+make logs     # View application logs
+make down     # Stop all services
+make build    # Rebuild Docker images
 ```
 
-View logs:
-```bash
-docker logs -f fastapi-blueprint-api
-```
+**Alternative: Direct Docker Compose commands**
 
-Stop services:
 ```bash
-docker compose down
+docker compose up -d              # Start all services
+docker logs -f fastapi-blueprint-api  # View logs
+docker compose down               # Stop services
+docker compose build              # Build images
 ```
 
 ### Docker Image
 
 Build the image:
 ```bash
-docker build -t fastapi-blueprint .
+make build
+# Or: docker compose build
 ```
 
 Run the container:
