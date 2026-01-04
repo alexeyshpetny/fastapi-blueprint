@@ -109,9 +109,9 @@ fastapi-blueprint/
 
 ## 📦 Prerequisites
 
-- **Python 3.13+**
-- **Docker & Docker Compose**
-- **uv**
+- **Python 3.13+** - Programming language runtime
+- **Docker & Docker Compose** - Containerization platform for running services
+- **uv** - Fast Python package installer and dependency manager
 
 ## 🚀 Quick Start
 
@@ -181,7 +181,7 @@ APP_RATE_LIMIT_ENABLED=true
 APP_RATE_LIMIT_DEFAULT=100/minute
 ```
 
-> **Note:** The `.env.example` file includes only essential variables. See [Configuration](#-configuration) for all available options and their defaults.
+**Note:** The `.env.example` file includes only essential variables. See [Configuration](#-configuration) for all available options and their defaults.
 
 ### 4. Start Services
 
