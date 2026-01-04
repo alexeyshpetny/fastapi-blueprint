@@ -45,19 +45,20 @@ router = APIRouter()
 )
 @rate_limit("5/minute")
 async def register(
-    request: RegisterRequest,
+    request: Request,
+    data: RegisterRequest,
     auth_service: AuthService = Depends(get_auth_service),
 ) -> RegisterResponse:
     try:
         await auth_service.create_user(
-            email=request.email,
-            password=request.password,
-            username=request.username,
+            email=data.email,
+            password=data.password,
+            username=data.username,
         )
-        user = await auth_service.get_user_by_email(request.email)
+        user = await auth_service.get_user_by_email(data.email)
         return RegisterResponse(user=UserResponse.model_validate(user))
     except UserAlreadyExistsError:
-        logger.warning("Registration attempt with existing email", extra={"email": request.email})
+        logger.warning("Registration attempt with existing email", extra={"email": data.email})
         raise ValidationError(
             message="Unable to complete registration. Please check your information and try again."
         ) from None
@@ -218,6 +219,7 @@ async def logout(request: Request, response: Response) -> dict[str, str]:
 )
 @rate_limit("60/minute")
 async def get_current_user_info(
+    request: Request,
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> UserResponse:
     return UserResponse.model_validate(current_user)
@@ -242,9 +244,10 @@ async def get_current_user_info(
 )
 @rate_limit("5/minute")
 async def change_password(
-    request: ChangePasswordRequest,
+    request: Request,
+    data: ChangePasswordRequest,
     current_user: Annotated[User, Depends(get_current_user)],
     auth_service: AuthService = Depends(get_auth_service),
 ) -> dict[str, str]:
-    await auth_service.change_user_password(current_user, request.current_password, request.new_password)
+    await auth_service.change_user_password(current_user, data.current_password, data.new_password)
     return {"message": "Password changed successfully"}

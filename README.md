@@ -148,16 +148,23 @@ This template is configured for **development** by default, with production-safe
 
 **For Production:** Set `APP_ENVIRONMENT=production` and configure production-specific settings (CORS origins, secrets, etc.).
 
-Create a `.env` file in the project root:
+**Quick Setup:** Copy the example environment file:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` and adjust values as needed. The `.env.example` file contains minimal essential variables for getting started.
+
+**Manual Setup:** Create a `.env` file in the project root with the following minimal configuration:
 
 ```bash
 # Application
 APP_ENVIRONMENT=development
 APP_DEBUG=false
-APP_SERVICE_NAME=fastapi-blueprint
 
 # Database
-APP_DB_HOST=localhost
+APP_DB_HOST=postgres
 APP_DB_PORT=5432
 APP_DB_USER=postgres
 APP_DB_PASSWORD=postgres
@@ -165,21 +172,18 @@ APP_DB_NAME=fastapi_blueprint
 
 # Cache (Redis)
 APP_CACHE_ENABLED=true
-APP_CACHE_HOST=localhost
+APP_CACHE_HOST=redis
 APP_CACHE_PORT=6379
-APP_CACHE_PASSWORD=
 
 # Authentication
 APP_JWT_SECRET_KEY=change-me-in-production-minimum-32-characters-long-secret-key
-APP_JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
-APP_JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 
 # Rate Limiting
 APP_RATE_LIMIT_ENABLED=true
 APP_RATE_LIMIT_DEFAULT=100/minute
 ```
 
-See [Configuration](#-configuration) for all available options.
+> **Note:** The `.env.example` file includes only essential variables. See [Configuration](#-configuration) for all available options and their defaults.
 
 ### 4. Start Services
 
