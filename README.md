@@ -20,7 +20,6 @@ How I build FastAPI backends, an opinionated blueprint with authentication, secu
 - [API Documentation](#-api-documentation)
 - [Development](#-development)
 - [Testing](#-testing)
-- [Docker](#-docker)
 - [Production Deployment](#-production-deployment)
 - [Contributing](#-contributing)
 - [License](#-license)
@@ -477,29 +476,6 @@ Rollback migration:
 docker exec fastapi-blueprint-api bash -c 'cd src && alembic downgrade -1'
 ```
 
-### Available Make Commands
-
-```bash
-make help              # Show all available commands
-make install           # Install dependencies
-make ci                # Run all CI checks
-make lint              # Check code quality
-make format            # Format code
-make fix               # Auto-fix linting issues
-make security          # Run security checks
-make test              # Run all tests
-make test-unit         # Run unit tests only
-make test-integration  # Run integration tests only
-make test-fast         # Run tests with fail-fast
-make clean             # Remove cache and build artifacts
-make start             # Build and start Docker containers
-make build             # Build Docker images
-make up                # Start Docker containers
-make down              # Stop Docker containers
-make migrate           # Run database migrations
-make create-migrations # Create new migration files
-```
-
 ## 🧪 Testing
 
 ### Run Tests
@@ -543,50 +519,6 @@ The project includes comprehensive test coverage for:
 - Middleware (security headers, request size limits)
 - Rate limiting (decorator-based)
 - Settings validation
-
-## 🐳 Docker
-
-### Docker Compose (Local Development)
-
-**Note:** Docker Compose is intended for **local development only**. For production deployments, use a container orchestration platform (Kubernetes, Docker Swarm, ECS, etc.).
-
-**Recommended: Use Make commands**
-
-```bash
-make start    # Build and start all services
-make logs     # View application logs
-make down     # Stop all services
-make build    # Rebuild Docker images
-```
-
-**Alternative: Direct Docker Compose commands**
-
-```bash
-docker compose up -d              # Start all services
-docker logs -f fastapi-blueprint-api  # View logs
-docker compose down               # Stop services
-docker compose build              # Build images
-```
-
-### Docker Image
-
-Build the image:
-```bash
-make build
-# Or: docker compose build
-```
-
-Run the container:
-```bash
-docker run -p 8080:8080 --env-file .env fastapi-blueprint
-```
-
-### Health Checks
-
-All services include health checks:
-- **PostgreSQL**: `pg_isready` check
-- **Redis**: `redis-cli ping` check
-- **API**: HTTP readiness endpoint check
 
 ## 🚢 Production Deployment
 
