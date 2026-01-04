@@ -1,4 +1,4 @@
-SERVICE_NAME = shpetny-fastapi-blueprint-api
+SERVICE_NAME = fastapi-blueprint-api
 ALEMBIC_CONFIG = src/alembic.ini
 
 .PHONY: help

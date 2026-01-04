@@ -1,9 +1,9 @@
-name: shpetny-fastapi-blueprint
+name: fastapi-blueprint
 
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: shpetny-fastapi-blueprint-postgres
+    container_name: fastapi-blueprint-postgres
     restart: unless-stopped
     env_file:
       - .env
@@ -19,7 +19,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: shpetny-fastapi-blueprint-redis
+    container_name: fastapi-blueprint-redis
     restart: unless-stopped
     env_file:
       - .env
@@ -35,7 +35,7 @@ services:
 
   api:
     build: .
-    container_name: shpetny-fastapi-blueprint-api
+    container_name: fastapi-blueprint-api
     restart: unless-stopped
     env_file:
       - .env
