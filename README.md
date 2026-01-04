@@ -1,6 +1,6 @@
 # FastAPI Blueprint
 
-How I build FastAPI backends. An opinionated blueprint with authentication, security, testing, CI/CD, and Docker support.
+How I build FastAPI backends, an opinionated blueprint with authentication, security, CI, and Docker.
 
 ## 👤 Author
 
