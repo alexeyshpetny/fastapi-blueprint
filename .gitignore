@@ -135,8 +135,12 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+# CRITICAL: .env files contain secrets and must NEVER be committed to version control!
+# Use .env.example as a template and store actual secrets in secure secret management services.
 .env
 .envrc
+.env.local
+.env.*.local
 .venv
 env/
 venv/
@@ -198,6 +202,7 @@ cython_debug/
 #  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
 #  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
 #  refer to https://docs.cursor.com/context/ignore-files
+.cursor
 .cursorignore
 .cursorindexingignore
 
@@ -205,3 +210,6 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# VS Code
+.vscode/

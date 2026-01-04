@@ -1,0 +1,125 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[project]
+name = "fastapi-blueprint"
+version = "0.1.0"
+description = "FastAPI blueprint with authentication, security, testing, and Docker support"
+requires-python = ">=3.13"
+authors = [
+    { name = "Alexey Shpetny", email = "rozanov7475@yandex.by" },
+]
+keywords = ["fastapi", "api", "web", "async"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Framework :: FastAPI",
+]
+dependencies = [
+    "alembic>=1.17.2",
+    "asyncpg>=0.29.0,<1.0.0",
+    "fastapi>=0.124.4,<1.0.0",
+    "fastapi-cache2>=0.2.0,<1.0.0",
+    "gunicorn>=23.0.0,<24.0.0",
+    "passlib[bcrypt]>=1.7.4",
+    "pydantic-settings>=2.12.0,<3.0.0",
+    "pydantic[email]>=2.12.5",
+    "python-jose[cryptography]>=3.5.0",
+    "python-json-logger>=3.2.0,<4.0.0",
+    "python-multipart>=0.0.21",
+    "redis>=5.2.0,<6.0.0",
+    "slowapi>=0.1.9,<1.0.0",
+    "sqlalchemy[asyncio]>=2.0.0,<3.0.0",
+    "uvicorn[standard]>=0.38.0,<1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.19.0,<2.0.0",
+    "pytest>=8.0.0,<9.0.0",
+    "pytest-asyncio>=0.24.0,<1.0.0",
+    "pytest-env>=1.1.0,<2.0.0",
+    "httpx>=0.27.0,<1.0.0",
+    "ruff>=0.14.9,<1.0.0",
+    "bandit>=1.7.0,<2.0.0",
+    "types-python-jose>=3.3.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+env = [
+    "APP_ENVIRONMENT=testing",
+    "APP_CACHE_ENABLED=false",
+    "APP_CACHE_HOST=localhost",
+    "APP_DB_HOST=localhost",
+]
+addopts = [
+    "--strict-markers",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests",
+    "slow: Slow running tests",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes (undefined names, unused imports)
+    "I",   # isort (import sorting)
+    "W",   # pycodestyle warnings
+    "UP",  # pyupgrade (modernize Python syntax)
+    "B",   # flake8-bugbear (common bugs and design problems)
+    "C4",  # flake8-comprehensions (better comprehensions)
+    "PT",  # flake8-pytest-style (pytest best practices)
+    "RUF", # ruff-specific rules
+]
+ignore = [
+    "E501",  # Line too long (handled by formatter)
+    "B008",  # Function calls in argument defaults (required for FastAPI Depends())
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "F401",  # Unused imports (common for re-exports)
+]
+"tests/**/*.py" = [
+    "ARG",  # Unused function arguments (fixtures often unused)
+    "S101", # Use of assert (assert is standard in tests)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.13"
+# Allow untyped code but still provide useful type checking
+disallow_untyped_defs = false
+check_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+strict_optional = true
+show_error_codes = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "migrations", "scripts"]
+skips = [
+    "B101",  # Skip assert_used (assert is fine in tests, but we exclude tests anyway)
+]
