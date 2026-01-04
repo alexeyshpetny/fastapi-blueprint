@@ -28,7 +28,21 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    summary="Register a new user",
+    description="Register a new user account with email, password, and optional username.",
+    response_model=RegisterResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_400_BAD_REQUEST: {
+            "description": "User already exists (email or username already registered)",
+        },
+        status.HTTP_422_UNPROCESSABLE_CONTENT: {
+            "description": "Validation failed - invalid email format, password too short, or invalid username format",
+        },
+    },
+)
 @rate_limit("5/minute")
 async def register(
     request: RegisterRequest,
@@ -49,7 +63,21 @@ async def register(
         ) from None
 
 
-@router.post("/login", response_model=LoginResponse)
+@router.post(
+    "/login",
+    summary="Login with email and password",
+    description="Authenticate a user and receive an access token. Refresh token is set in HTTP-only cookie.",
+    response_model=LoginResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Invalid credentials - wrong email/password or user account is inactive",
+        },
+        status.HTTP_422_UNPROCESSABLE_CONTENT: {
+            "description": "Validation failed - missing username or password fields",
+        },
+    },
+)
 @rate_limit("5/minute")
 async def login(
     request: Request,
@@ -81,7 +109,21 @@ async def login(
         raise
 
 
-@router.post("/refresh", response_model=LoginResponse)
+@router.post(
+    "/refresh",
+    summary="Refresh access token",
+    description="Get a new access token using a refresh token (from cookie or request body).",
+    response_model=LoginResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": (
+                "Invalid refresh token - token not provided, malformed, wrong type, expired, "
+                "blacklisted, user not found, or user account is inactive"
+            ),
+        },
+    },
+)
 @rate_limit("10/minute")
 async def refresh(
     request: Request,
@@ -129,7 +171,15 @@ async def refresh(
     )
 
 
-@router.post("/logout")
+@router.post(
+    "/logout",
+    summary="Logout user",
+    description=(
+        "Invalidate refresh token and clear authentication cookies. "
+        "Always returns 200 even if no token is present or token is invalid."
+    ),
+    status_code=status.HTTP_200_OK,
+)
 @rate_limit("20/minute")
 async def logout(request: Request, response: Response) -> dict[str, str]:
     if refresh_token := request.cookies.get(settings.JWT_REFRESH_TOKEN_COOKIE_NAME):
@@ -151,7 +201,21 @@ async def logout(request: Request, response: Response) -> dict[str, str]:
     return {"message": "Logged out successfully"}
 
 
-@router.get("/me", response_model=UserResponse)
+@router.get(
+    "/me",
+    summary="Get current user information",
+    description="Get the authenticated user's profile information.",
+    response_model=UserResponse,
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": ("Authentication required - token missing, expired, invalid, revoked, or user not found"),
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "User account is inactive",
+        },
+    },
+)
 @rate_limit("60/minute")
 async def get_current_user_info(
     current_user: Annotated[User, Depends(get_current_user)],
@@ -159,7 +223,23 @@ async def get_current_user_info(
     return UserResponse.model_validate(current_user)
 
 
-@router.post("/change-password")
+@router.post(
+    "/change-password",
+    summary="Change user password",
+    description="Change the authenticated user's password. Requires current password verification.",
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": ("Invalid current password, token missing, expired, invalid, revoked, or user not found"),
+        },
+        status.HTTP_403_FORBIDDEN: {
+            "description": "User account is inactive",
+        },
+        status.HTTP_422_UNPROCESSABLE_CONTENT: {
+            "description": "Validation failed - new password too short or missing required fields",
+        },
+    },
+)
 @rate_limit("5/minute")
 async def change_password(
     request: ChangePasswordRequest,
