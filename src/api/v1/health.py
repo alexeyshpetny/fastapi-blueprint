@@ -44,7 +44,7 @@ async def check_liveness(
                 "application/json": {
                     "example": {
                         "status": "not_ready",
-                        "service": "shpetny-fastapi-blueprint",
+                        "service": "fastapi-blueprint",
                         "version": "1.0.0",
                         "checks": {"database": "error", "cache": "error"},
                         "error": "Database connection failed; Cache connection failed",

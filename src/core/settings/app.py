@@ -35,12 +35,12 @@ class AppSettings(BaseSettings):
     )
 
     SERVICE_NAME: str = Field(
-        default="shpetny-fastapi-blueprint",
+        default="fastapi-blueprint",
         description="Name of the service used in health checks and responses",
     )
 
     DOC_TITLE: str = Field(
-        default="Shpetny FastAPI Blueprint",
+        default="FastAPI Blueprint",
         description="Title of the API documentation",
     )
     DOC_VERSION: str = Field(
@@ -48,7 +48,7 @@ class AppSettings(BaseSettings):
         description="API version displayed in documentation",
     )
     DOC_DESCRIPTION: str = Field(
-        default="API documentation for Shpetny FastAPI Blueprint",
+        default="API documentation for FastAPI Blueprint",
         description="Description of the API shown in documentation",
     )
     DOC_OPENAPI_URL: str = Field(

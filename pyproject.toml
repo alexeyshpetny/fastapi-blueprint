@@ -6,9 +6,9 @@ build-backend = "hatchling.build"
 packages = ["src"]
 
 [project]
-name = "shpetny-fastapi-blueprint"
+name = "fastapi-blueprint"
 version = "0.1.0"
-description = "Production-ready FastAPI blueprint"
+description = "FastAPI blueprint with authentication, security, testing, and Docker support"
 requires-python = ">=3.13"
 authors = [
     { name = "Alexey Shpetny", email = "rozanov7475@yandex.by" },
