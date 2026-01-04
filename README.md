@@ -72,7 +72,7 @@ This blueprint follows clean architecture principles with clear separation of co
 - **Dependency Injection** - FastAPI's dependency system
 - **Service Layer** - Business logic separation
 - **Settings Management** - Pydantic Settings with validation
-- **Middleware Stack** - Logging, security, rate limiting, CORS
+- **Middleware Stack** - Logging, security headers, request size limits, CORS, trusted hosts
 
 ### Project Structure
 
@@ -85,7 +85,7 @@ fastapi-blueprint/
 │   ├── cache/            # Redis caching
 │   ├── core/             # Core functionality
 │   │   ├── exceptions/   # Exception handlers
-│   │   ├── middlewares/  # Middleware (logging, security, rate limiting)
+│   │   ├── middlewares/  # Middleware (logging, security headers, request size limits)
 │   │   └── settings/     # Configuration settings
 │   ├── db/               # Database configuration
 │   ├── models/           # SQLAlchemy models
@@ -467,7 +467,7 @@ make security          # Run security checks
 make test              # Run all tests
 make test-unit         # Run unit tests only
 make test-integration  # Run integration tests only
-make test-fast         # Run tests without coverage
+make test-fast         # Run tests with fail-fast
 make clean             # Remove cache and build artifacts
 make start             # Build and start Docker containers
 make build             # Build Docker images
@@ -496,7 +496,7 @@ Integration tests only:
 make test-integration
 ```
 
-Fast tests (without coverage):
+Fast tests (stops on first failure):
 ```bash
 make test-fast
 ```
@@ -517,7 +517,8 @@ The project includes comprehensive test coverage for:
 - Password hashing
 - Authorization dependencies
 - Health checks
-- Middleware (security headers, rate limiting, request size limits)
+- Middleware (security headers, request size limits)
+- Rate limiting (decorator-based)
 - Settings validation
 
 ## 🐳 Docker
