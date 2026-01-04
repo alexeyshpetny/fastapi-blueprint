@@ -110,10 +110,8 @@ fastapi-blueprint/
 ## 📦 Prerequisites
 
 - **Python 3.13+**
-- **PostgreSQL 16+**
-- **Redis 7+**
 - **Docker & Docker Compose**
-- **uv** (recommended) or pip for dependency management
+- **uv**
 
 ## 🚀 Quick Start
 
@@ -304,7 +302,7 @@ All configuration is done via environment variables with the `APP_` prefix. Sett
 | `APP_LOG_FORMAT` | `json` | Log format: `json` or `text` |
 | `APP_LOG_INCLUDE_REQUEST_ID` | `true` | Include request ID in logs |
 
-> **Note**: For production, ensure all secrets are changed from defaults and use a secret management service (AWS Secrets Manager, HashiCorp Vault, etc.).
+**Note**: For production, ensure all secrets are changed from defaults and use a secret management service (AWS Secrets Manager, HashiCorp Vault, etc.).
 
 ## 📚 API Documentation
 
