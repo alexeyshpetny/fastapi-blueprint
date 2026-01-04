@@ -61,6 +61,7 @@ Everything you need to build, test, and deploy with confidence.
 - ✅ **Docker** - Multi-stage builds with healthchecks
 - ✅ **CI/CD** - Automated testing, linting, and security scanning
 - ✅ **Migrations** - Alembic for database schema management
+- ✅ **Deployment Ready** - Docker Compose for local development, Gunicorn with Uvicorn workers for production (Kubernetes-ready)
 
 ## 🏗️ Architecture & Project Structure
 
@@ -183,7 +184,7 @@ See [Configuration](#-configuration) for all available options.
 
 ### 4. Start Services
 
-Using Docker Compose (recommended):
+Using Docker Compose (for local development):
 ```bash
 make start
 # Or manually:
@@ -521,7 +522,9 @@ The project includes comprehensive test coverage for:
 
 ## 🐳 Docker
 
-### Docker Compose
+### Docker Compose (Local Development)
+
+**Note:** Docker Compose is intended for **local development only**. For production deployments, use Kubernetes or another orchestration platform.
 
 Start all services:
 ```bash
