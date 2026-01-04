@@ -208,7 +208,7 @@ uvicorn src.main:application --reload --host 0.0.0.0 --port 8080
 - **API Base URL**: http://localhost:8080/api/v1
 - **Swagger UI**: http://localhost:8080/api/docs
 - **ReDoc**: http://localhost:8080/api/redoc
-- **Health Check**: http://localhost:8080/api/v1/health/ready
+- **Readiness Check**: http://localhost:8080/api/v1/health/readiness
 
 ## ⚙️ Configuration
 
@@ -350,14 +350,14 @@ Content-Type: application/json
 
 #### Liveness
 ```http
-GET /api/v1/health/live
+GET /api/v1/health/liveness
 ```
 
 Returns 200 if the application process is running.
 
 #### Readiness
 ```http
-GET /api/v1/health/ready
+GET /api/v1/health/readiness
 ```
 
 Returns 200 if the service is ready to accept traffic (checks database and cache connections).
@@ -603,7 +603,7 @@ Before deploying to production, ensure the following:
 - [ ] Security headers enabled
 
 #### Application Health
-- [ ] Health checks working (`/api/v1/health/ready`)
+- [ ] Liveness and readiness checks working (`/api/v1/health/readiness`)
 - [ ] Database migrations applied
 - [ ] All tests passing
 
