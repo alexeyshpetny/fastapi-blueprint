@@ -508,18 +508,6 @@ Tests are organized with pytest markers:
 - `@pytest.mark.e2e` - End-to-end tests
 - `@pytest.mark.slow` - Slow-running tests
 
-### Test Coverage
-
-The project includes comprehensive test coverage for:
-- Authentication endpoints (22+ test cases)
-- JWT token handling
-- Password hashing
-- Authorization dependencies
-- Health checks
-- Middleware (security headers, request size limits)
-- Rate limiting (decorator-based)
-- Settings validation
-
 ## 🚢 Production Deployment
 
 This blueprint provides a solid foundation, but you'll need to add additional components for production deployment.
