@@ -161,7 +161,12 @@ Then edit `.env` and adjust values as needed. The `.env.example` file contains m
 APP_ENVIRONMENT=development
 APP_DEBUG=false
 
-# Database
+# PostgreSQL Docker Container
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=fastapi_blueprint
+
+# Database Connection
 APP_DB_HOST=postgres
 APP_DB_PORT=5432
 APP_DB_USER=postgres
