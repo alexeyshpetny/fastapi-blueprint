@@ -221,6 +221,7 @@ async def logout(request: Request, response: Response) -> dict[str, str]:
 @rate_limit("60/minute")
 async def get_current_user_info(
     request: Request,
+    response: Response,
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> UserResponse:
     return UserResponse.model_validate(current_user)
@@ -246,6 +247,7 @@ async def get_current_user_info(
 @rate_limit("5/minute")
 async def change_password(
     request: Request,
+    response: Response,
     data: ChangePasswordRequest,
     current_user: Annotated[User, Depends(get_current_user)],
     auth_service: AuthService = Depends(get_auth_service),
