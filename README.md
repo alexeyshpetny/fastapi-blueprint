@@ -621,10 +621,10 @@ Before deploying to production, ensure the following:
 2. **HTTPS**: Always use HTTPS in production. Set `APP_JWT_REFRESH_TOKEN_SECURE=true`
 3. **CORS**: Configure specific origins, not wildcards
 4. **Rate Limiting**: Use Redis storage for multi-worker deployments
-5. **Monitoring**: Add APM (Sentry, Datadog, New Relic) and metrics (Prometheus) - **Required**
-6. **Logging**: Send logs to external service (ELK, CloudWatch, etc.) - **Required**
+5. **Monitoring**: Add APM (Sentry, Datadog, New Relic) and metrics (Prometheus)
+6. **Logging**: Send logs to external service (ELK, CloudWatch, etc.)
 7. **Database**: Use connection pooling and monitor pool usage
-8. **Backups**: Set up automated database backups - **Required**
+8. **Backups**: Set up automated database backups
 9. **Scaling**: Use multiple workers behind a load balancer
 10. **Security Scanning**: Run regular security audits
 
