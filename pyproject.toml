@@ -27,6 +27,7 @@ dependencies = [
     "asyncpg>=0.29.0,<1.0.0",
     "fastapi>=0.124.4,<1.0.0",
     "fastapi-cache2>=0.2.0,<1.0.0",
+    "gunicorn>=23.0.0,<24.0.0",
     "passlib[bcrypt]>=1.7.4",
     "pydantic-settings>=2.12.0,<3.0.0",
     "pydantic[email]>=2.12.5",
