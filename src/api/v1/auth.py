@@ -41,6 +41,9 @@ router = APIRouter()
         status.HTTP_422_UNPROCESSABLE_CONTENT: {
             "description": "Validation failed - invalid email format, password too short, or invalid username format",
         },
+        status.HTTP_429_TOO_MANY_REQUESTS: {
+            "description": "Rate limit exceeded - too many requests",
+        },
     },
 )
 @rate_limit("5/minute")
@@ -77,6 +80,9 @@ async def register(
         },
         status.HTTP_422_UNPROCESSABLE_CONTENT: {
             "description": "Validation failed - missing username or password fields",
+        },
+        status.HTTP_429_TOO_MANY_REQUESTS: {
+            "description": "Rate limit exceeded - too many requests",
         },
     },
 )
@@ -123,6 +129,9 @@ async def login(
                 "Invalid refresh token - token not provided, malformed, wrong type, expired, "
                 "blacklisted, user not found, or user account is inactive"
             ),
+        },
+        status.HTTP_429_TOO_MANY_REQUESTS: {
+            "description": "Rate limit exceeded - too many requests",
         },
     },
 )
@@ -181,6 +190,11 @@ async def refresh(
         "Always returns 200 even if no token is present or token is invalid."
     ),
     status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_429_TOO_MANY_REQUESTS: {
+            "description": "Rate limit exceeded - too many requests",
+        },
+    },
 )
 @rate_limit("20/minute")
 async def logout(request: Request, response: Response) -> dict[str, str]:
@@ -216,6 +230,9 @@ async def logout(request: Request, response: Response) -> dict[str, str]:
         status.HTTP_403_FORBIDDEN: {
             "description": "User account is inactive",
         },
+        status.HTTP_429_TOO_MANY_REQUESTS: {
+            "description": "Rate limit exceeded - too many requests",
+        },
     },
 )
 @rate_limit("60/minute")
@@ -241,6 +258,9 @@ async def get_current_user_info(
         },
         status.HTTP_422_UNPROCESSABLE_CONTENT: {
             "description": "Validation failed - new password too short or missing required fields",
+        },
+        status.HTTP_429_TOO_MANY_REQUESTS: {
+            "description": "Rate limit exceeded - too many requests",
         },
     },
 )
