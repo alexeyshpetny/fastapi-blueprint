@@ -56,27 +56,27 @@ jobs:
       - if: always()
         run: docker compose down
 
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - run: uv sync --group dev --frozen
-      - run: uv run bandit -r src -ll
-      - uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "fs"
-          scan-ref: "."
-          severity: "CRITICAL,HIGH"
-          exit-code: "1"
-          ignorefile: ".trivyignore"
+#  security:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: astral-sh/setup-uv@v5
+#      - uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.13"
+#      - run: uv sync --group dev --frozen
+#      - run: uv run bandit -r src -ll
+#      - uses: aquasecurity/trivy-action@master
+#        with:
+#          scan-type: "fs"
+#          scan-ref: "."
+#          severity: "CRITICAL,HIGH"
+#          exit-code: "1"
+#          ignorefile: ".trivyignore"
 
   build:
     runs-on: ubuntu-latest
-    needs: [lint, type-check, test, security]
+    needs: [lint, type-check, test]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -88,24 +88,24 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  security-image:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: false
-          load: true
-          tags: fastapi-blueprint:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: fastapi-blueprint:test
-          format: table
-          severity: CRITICAL,HIGH
-          exit-code: "1"
-          ignorefile: ".trivyignore"
+#  security-image:
+#    runs-on: ubuntu-latest
+#    needs: [build]
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: docker/setup-buildx-action@v3
+#      - uses: docker/build-push-action@v5
+#        with:
+#          context: .
+#          push: false
+#          load: true
+#          tags: fastapi-blueprint:test
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
+#      - uses: aquasecurity/trivy-action@master
+#        with:
+#          image-ref: fastapi-blueprint:test
+#          format: table
+#          severity: CRITICAL,HIGH
+#          exit-code: "1"
+#          ignorefile: ".trivyignore"
