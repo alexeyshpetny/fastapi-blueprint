@@ -7,8 +7,8 @@ How I build FastAPI backends, an opinionated blueprint with authentication, secu
 **Alexey Shpetny**
 
 - Email: alexey.shpetny.work@gmail.com
-- LinkedIn: [linkedin.com/in/alexeyshpetny](https://www.linkedin.com/in/alexeyshpetny)
-- Telegram: [@alexeyshpetny_work](https://t.me/alexeyshpetny_work)
+- LinkedIn: [linkedin.com/in/shpetnyalexey](https://www.linkedin.com/in/shpetnyalexey)
+- Telegram: [@alexeyshpetny](https://t.me/alexeyshpetny)
 
 ## 📋 Table of Contents
 
