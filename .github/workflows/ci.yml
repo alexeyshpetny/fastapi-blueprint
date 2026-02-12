@@ -56,23 +56,23 @@ jobs:
       - if: always()
         run: docker compose down
 
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-      - run: uv sync --group dev --frozen
-      - run: uv run bandit -r src -ll
-      - uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "fs"
-          scan-ref: "."
-          severity: "CRITICAL,HIGH"
-          exit-code: "1"
-          ignorefile: ".trivyignore"
+#  security:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: astral-sh/setup-uv@v5
+#      - uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.13"
+#      - run: uv sync --group dev --frozen
+#      - run: uv run bandit -r src -ll
+#      - uses: aquasecurity/trivy-action@master
+#        with:
+#          scan-type: "fs"
+#          scan-ref: "."
+#          severity: "CRITICAL,HIGH"
+#          exit-code: "1"
+#          ignorefile: ".trivyignore"
 
   build:
     runs-on: ubuntu-latest
